@@ -27,19 +27,14 @@ pipeline {
             }
         }
 
-        stage('SonarQube Analysis') {
-    environment {
-        scannerHome = tool 'SonarQubeScanner' 
-    }
+      stage('SonarQube Analysis') {
     steps {
-        withSonarQubeEnv('NomExactDeTonSonarQube') { 
-            sh "${scannerHome}/bin/sonar-scanner \
-                -Dsonar.projectKey=country-service \
-                -Dsonar.sources=src/main \
-                -Dsonar.java.binaries=target/classes"
+        withSonarQubeEnv('SonarQubeScanner') {
+            sh "mvn sonar:sonar -Dsonar.projectKey=country-service -Dsonar.sources=src/main -Dsonar.java.binaries=target/classes"
         }
     }
 }
+
 
         
         stage('Test') {
