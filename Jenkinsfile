@@ -27,20 +27,15 @@ pipeline {
             }
         }
        stage('SonarQube Analysis') {
-    environment {
-        scannerHome = tool 'SonarQubeScanner' // Nom de l'installation du scanner
-    }
-    steps {
-        withSonarQubeEnv('SonarQube') {      // Nom du serveur SonarQube
-            sh "${scannerHome}/bin/sonar-scanner \
-                -Dsonar.projectKey=country-service \
-                -Dsonar.sources=src/main \
-                -Dsonar.java.binaries=target/classes"
+            steps {
+               withSonarQubeEnv('SonarQube') {    
+                   sh "${scannerHome}/bin/sonar-scanner \
+                 -Dsonar.projectKey=country-service \
+                  -Dsonar.sources=src/main \
+                  -Dsonar.java.binaries=target/classes"
         }
     }
 }
-
-
 
         stage('Test') {
             steps {
