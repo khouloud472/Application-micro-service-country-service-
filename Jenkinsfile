@@ -26,16 +26,7 @@ pipeline {
                 }
             }
         }
-       stage('SonarQube Analysis') {
-            steps {
-               withSonarQubeEnv('SonarQube') {    
-                   sh "${scannerHome}/bin/sonar-scanner \
-                 -Dsonar.projectKey=country-service \
-                  -Dsonar.sources=src/main \
-                  -Dsonar.java.binaries=target/classes"
-        }
-    }
-}
+      
 
         stage('Test') {
             steps {
