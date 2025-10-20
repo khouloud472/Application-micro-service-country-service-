@@ -28,18 +28,19 @@ pipeline {
         }
 
         stage('SonarQube Analysis') {
-            environment {
-                scannerHome = tool 'SonarQubeScanner'
-            }
-            steps {
-                withSonarQubeEnv('SonarQube') {
-                    sh "${scannerHome}/bin/sonar-scanner \
-                        -Dsonar.projectKey=country-service \
-                        -Dsonar.sources=src/main \
-                        -Dsonar.java.binaries=target/classes"
-                }
-            }
+    environment {
+        scannerHome = tool 'SonarQubeScanner' 
+    }
+    steps {
+        withSonarQubeEnv('NomExactDeTonSonarQube') { 
+            sh "${scannerHome}/bin/sonar-scanner \
+                -Dsonar.projectKey=country-service \
+                -Dsonar.sources=src/main \
+                -Dsonar.java.binaries=target/classes"
         }
+    }
+}
+
         
         stage('Test') {
             steps {
