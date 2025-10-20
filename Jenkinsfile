@@ -34,8 +34,6 @@ pipeline {
                         withSonarQubeEnv('SonarQubeScanner') {
                             sh "mvn sonar:sonar -Dsonar.projectKey=country-service -Dsonar.sources=src/main -Dsonar.java.binaries=target/classes"
                         }
-                    } catch (err) {
-                        echo "⚠️ SonarQube non disponible, on continue sans analyse"
                     }
                 }
             }
