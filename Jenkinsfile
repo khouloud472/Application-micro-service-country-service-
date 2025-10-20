@@ -26,13 +26,14 @@ pipeline {
                 }
             }
         }
-
-        stage('SonarQube Analysis') {
+stage('SonarQube Analysis') {
     steps {
-        withSonarQubeEnv('SonarQube') {    
+        withSonarQubeEnv('NomExactDeTonSonarQube') {    
             sh 'mvn sonar:sonar'
         }
     }
+}
+
 }
 
         
