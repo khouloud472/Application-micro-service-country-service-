@@ -1,16 +1,16 @@
 pipeline {
     agent any
     tools {
-        maven 'Maven' 
-        jdk 'JDK17'   
+        maven 'Maven'
+        jdk 'JDK17'
     }
 
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', 
-                url: 'https://github.com/khouloud472/Application-micro-service-country-service-.git',
-                credentialsId: 'github-token'
+                git branch: 'main',
+                    url: 'https://github.com/khouloud472/Application-micro-service-country-service-.git',
+                    credentialsId: 'github-token'
             }
         }
 
@@ -44,15 +44,5 @@ pipeline {
                 }
             }
         }
-
-
-    
-            }
-        }
-
-        
-    }
-
-
-}
-
+    } // fin de stages
+} // fin du pipeline
