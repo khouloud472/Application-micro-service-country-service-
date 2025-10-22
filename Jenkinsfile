@@ -27,19 +27,7 @@ pipeline {
 
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv('SonarQubeScanner') {
-                    withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
-                        script {
-                            def mvnHome = tool name: 'Maven', type: 'maven'
-                            sh """
-                                ${mvnHome}/bin/mvn sonar:sonar \
-                                -Dsonar.projectKey=Application-micro-service-country-service \
-                                -Dsonar.projectName='Application-micro-service-country-service' \
-                                -Dsonar.token=${SONAR_TOKEN}
-                            """
-                        }
-                    }
-                }
+                sh "mvn clean deploy -Dnexus.username=${NEXUS_USERNAME} -Dnexus.password=${NEXUS_PASSWORD}"
             }
         }
 
