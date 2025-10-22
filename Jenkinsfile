@@ -47,7 +47,7 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'nexus-credentials',
                                                  usernameVariable: 'admin',
-                                                 passwordVariable: 'khouloud')]) {
+                                                 passwordVariable: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890')]) {
                     script {
                         def mvnHome = tool name: 'Maven', type: 'maven'
                         sh """
