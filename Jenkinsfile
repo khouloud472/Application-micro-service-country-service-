@@ -1,6 +1,5 @@
 pipeline {
     agent any
-
     tools {
         maven 'Maven'
         jdk 'JDK17'
@@ -15,7 +14,7 @@ pipeline {
             }
         }
 
-        stage('Compile, Test, Package') {
+        stage('Build & Test') {
             steps {
                 sh 'mvn clean install -Dmaven.test.failure.ignore=true'
             }
@@ -36,9 +35,24 @@ pipeline {
                                 ${mvnHome}/bin/mvn sonar:sonar \
                                 -Dsonar.projectKey=Application-micro-service-country-service \
                                 -Dsonar.projectName='Application-micro-service-country-service' \
-                                -Dsonar.login=${SONAR_TOKEN}
+                                -Dsonar.token=${SONAR_TOKEN}
                             """
                         }
+                    }
+                }
+            }
+        }
+
+        stage('Nexus Deploy') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'nexus-credentials',
+                                                 usernameVariable: 'admin',
+                                                 passwordVariable: 'khouloud')]) {
+                    script {
+                        def mvnHome = tool name: 'Maven', type: 'maven'
+                        sh """
+                            ${mvnHome}/bin/mvn deploy -DskipTests -s $WORKSPACE/settings.xml
+                        """
                     }
                 }
             }
