@@ -16,20 +16,32 @@ pipeline {
         }
 
         stage('Compile, Test, Package') {
-    steps {
-        sh 'mvn clean install -Dmaven.test.failure.ignore=true'
-    }
-    post {
-        always {
-            junit allowEmptyResults: true, testResults: '**/target/surefire-reports/*.xml'
+            steps {
+                sh 'mvn clean install -Dmaven.test.failure.ignore=true'
+            }
+            post {
+                always {
+                    junit allowEmptyResults: true, testResults: '**/target/surefire-reports/*.xml'
+                }
+            }
         }
-    }
-}
 
-
-        withCredentials([string(credentialsId: 'sonar-token')]) {
-    sh "${mvnHome}/bin/mvn sonar:sonar -Dsonar.projectKey=Application-micro-service-country-service"
-}
-
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('SonarQubeScanner') {
+                    withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+                        script {
+                            def mvnHome = tool name: 'Maven', type: 'maven'
+                            sh """
+                                ${mvnHome}/bin/mvn sonar:sonar \
+                                -Dsonar.projectKey=Application-micro-service-country-service \
+                                -Dsonar.projectName='Application-micro-service-country-service' \
+                                -Dsonar.login=${SONAR_TOKEN}
+                            """
+                        }
+                    }
+                }
+            }
+        }
     }
 }
