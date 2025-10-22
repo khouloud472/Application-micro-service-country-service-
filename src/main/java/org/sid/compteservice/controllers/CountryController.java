@@ -19,6 +19,7 @@ import org.sid.compteservice.beans.Country;
 import org.sid.compteservice.services.CountryService;
 
 @RestController
+@RequestMapping("/getcountries")
 public class CountryController {
 	
 	@Autowired
