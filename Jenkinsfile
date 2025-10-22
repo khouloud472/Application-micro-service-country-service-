@@ -43,17 +43,10 @@ pipeline {
             }
         }
 
-        stage('Nexus Deploy') {
+         stage('Build & Deploy to Nexus') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'nexus-credentials',
-                                                 usernameVariable: 'admin',
-                                                 passwordVariable: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890')]) {
-                    script {
-                        def mvnHome = tool name: 'Maven', type: 'maven'
-                        sh """
-                            ${mvnHome}/bin/mvn deploy -DskipTests -s $WORKSPACE/settings.xml
-                        """
-                    }
+                withCredentials([usernamePassword(credentialsId: 'nexus-credentials', usernameVariable: 'NEXUS_USERNAME', passwordVariable: 'NEXUS_PASSWORD')]) {
+                    sh "mvn clean deploy"
                 }
             }
         }
