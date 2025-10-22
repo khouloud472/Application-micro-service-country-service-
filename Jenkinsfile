@@ -6,27 +6,31 @@ pipeline {
     }
 
     stages {
-        stage('Checkout') { 
-            steps { 
-                git url: 'https://github.com/khouloud472/Application-micro-service-country-service-.git', branch: 'main', credentialsId: 'github-token' 
-            } 
+        stage('Checkout') {
+            steps {
+                git url: 'https://github.com/khouloud472/Application-micro-service-country-service-.git',
+                    branch: 'main',
+                    credentialsId: 'github-token'
+            }
         }
 
         stage('Build') {
             steps {
-                    sh 'mvn clean package -Dmaven.test.failure.ignore=true'
+                sh 'mvn clean package -Dmaven.test.failure.ignore=true'
             }
         }
 
-
         stage('SonarQube Analysis') {
-    steps {
-        withSonarQubeEnv('SonarQubeScanner') {
-            
-            sh "${mvn}/bin/mvn clean verify sonar:sonar -Dsonar.projectKey=Application-micro-service-country-service -Dsonar.projectName='Application-micro-service-country-service'"
+            steps {
+                withSonarQubeEnv('SonarQubeScanner') {
+                    script {
+                        def mvnHome = tool name: 'Maven', type: 'maven'
+                        sh "${mvnHome}/bin/mvn clean verify sonar:sonar " +
+                           "-Dsonar.projectKey=Application-micro-service-country-service " +
+                           "-Dsonar.projectName='Application-micro-service-country-service'"
+                    }
+                }
+            }
         }
-    }
-}
-
     }
 }
