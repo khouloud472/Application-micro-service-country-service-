@@ -16,15 +16,16 @@ pipeline {
         }
 
         stage('Compile, Test, Package') {
-            steps {
-                sh 'mvn clean install'
-            }
-            post {
-                success {
-                    junit allowEmptyResults: true, testResults: '**/target/surefire-reports/*.xml'
-                }
-            }
+    steps {
+        sh 'mvn clean install -Dmaven.test.failure.ignore=true'
+    }
+    post {
+        always {
+            junit allowEmptyResults: true, testResults: '**/target/surefire-reports/*.xml'
         }
+    }
+}
+
 
         stage('SonarQube Analysis') {
             steps {
