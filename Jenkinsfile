@@ -27,19 +27,9 @@ pipeline {
 }
 
 
-        stage('SonarQube Analysis') {
-            steps {
-                withSonarQubeEnv('SonarQubeScanner') {
-                    script {
-                        def mvnHome = tool name: 'Maven', type: 'maven'
-                        sh """
-                            ${mvnHome}/bin/mvn sonar:sonar \
-                            -Dsonar.projectKey=Application-micro-service-country-service \
-                            -Dsonar.projectName='Application-micro-service-country-service'
-                        """
-                    }
-                }
-            }
-        }
+        withCredentials([string(credentialsId: 'sonar-token', variable: 'fd947837-9bc5-4708-8788-5586e0c1fd8c')]) {
+    sh "${mvnHome}/bin/mvn sonar:sonar -Dsonar.projectKey=Application-micro-service-country-service -Dsonar.login=${SONAR_TOKEN}"
+}
+
     }
 }
