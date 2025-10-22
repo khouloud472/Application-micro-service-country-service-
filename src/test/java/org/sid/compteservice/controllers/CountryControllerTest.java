@@ -42,7 +42,7 @@ class CountryControllerTest {
         when(countryService.getAllCountries()).thenReturn(countries);
 
         mockMvc.perform(get("/getcountries"))
-               .andExpect(status().isFound())
+               .andExpect(status().isOk())
                .andExpect(jsonPath("$.length()").value(2))
                .andExpect(jsonPath("$[0].name").value("France"))
                .andExpect(jsonPath("$[1].capital").value("Berlin"));
@@ -53,7 +53,7 @@ class CountryControllerTest {
         when(countryService.getCountryById(1)).thenReturn(country1);
 
         mockMvc.perform(get("/getcountries/1"))
-               .andExpect(status().isFound())
+               .andExpect(status().isOk())
                .andExpect(jsonPath("$.name").value("France"))
                .andExpect(jsonPath("$.capital").value("Paris"));
     }
