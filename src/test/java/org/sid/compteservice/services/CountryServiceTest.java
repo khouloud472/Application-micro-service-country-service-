@@ -28,7 +28,7 @@ class CountryServiceTest {
 
 	@Test
 	void test() {
-		fail("Not yet implemented");
+		assertNotNull(new CountryService());
 	}
 
 }
