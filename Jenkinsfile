@@ -1,5 +1,6 @@
 pipeline {
     agent any
+
     tools {
         maven 'Maven'
         jdk 'JDK17'
@@ -14,9 +15,14 @@ pipeline {
             }
         }
 
-        stage('Build') {
+        stage('Compile, Test, Package') {
             steps {
-                sh 'mvn clean package -Dmaven.test.failure.ignore=true'
+                sh 'mvn clean install'
+            }
+            post {
+                success {
+                    junit allowEmptyResults: true, testResults: '**/target/surefire-reports/*.xml'
+                }
             }
         }
 
@@ -25,9 +31,11 @@ pipeline {
                 withSonarQubeEnv('SonarQubeScanner') {
                     script {
                         def mvnHome = tool name: 'Maven', type: 'maven'
-                        sh "${mvnHome}/bin/mvn clean verify sonar:sonar " +
-                           "-Dsonar.projectKey=Application-micro-service-country-service " +
-                           "-Dsonar.projectName='Application-micro-service-country-service'"
+                        sh """
+                            ${mvnHome}/bin/mvn sonar:sonar \
+                            -Dsonar.projectKey=Application-micro-service-country-service \
+                            -Dsonar.projectName='Application-micro-service-country-service'
+                        """
                     }
                 }
             }
