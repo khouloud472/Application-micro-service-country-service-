@@ -28,7 +28,7 @@ pipeline {
 
 
         withCredentials([string(credentialsId: 'sonar-token', variable: 'fd947837-9bc5-4708-8788-5586e0c1fd8c')]) {
-    sh "${mvnHome}/bin/mvn sonar:sonar -Dsonar.projectKey=Application-micro-service-country-service -Dsonar.login=${SONAR_TOKEN}"
+    sh "${mvnHome}/bin/mvn sonar:sonar -Dsonar.projectKey=Application-micro-service-country-service -Dsonar.login=${fd947837-9bc5-4708-8788-5586e0c1fd8c}"
 }
 
     }
