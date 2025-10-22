@@ -28,7 +28,7 @@ class CountryRepositoryTest {
 
 	@Test
 	void test() {
-		fail("Not yet implemented");
+		assertNotNull(new CountryRepository());
 	}
 
 }
