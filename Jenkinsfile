@@ -39,10 +39,13 @@ pipeline {
             }
         }
 
+
+
         stage('Build & Deploy to Nexus') {
             steps {
-                nexusArtifactUploader credentialsId: 'nexus-credentials', groupId: 'org.springframework.boot', nexusUrl: 'http://localhost:8081/#admin/repository/repositories', nexusVersion: 'nexus3', protocol: 'http', repository: 'http://localhost:8081/repository/Application-micro-service-country-service/', version: '3.5.6'
-                
+                withCredentials([usernamePassword(credentialsId: 'nexus-credentials', usernameVariable: 'NEXUS_USERNAME', passwordVariable: 'NEXUS_PASSWORD')]) {
+                    sh "mvn clean deploy -Dnexus.username=${NEXUS_USERNAME} -Dnexus.password=${NEXUS_PASSWORD}"
+                }
             }
         }
     }
