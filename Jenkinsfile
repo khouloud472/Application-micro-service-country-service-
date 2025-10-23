@@ -1,21 +1,15 @@
 pipeline {
     agent any
-
     tools {
         maven 'Maven'
         jdk 'JDK17'
     }
 
-    environment {
-        SONARQUBE_ENV = credentials('sonarqube-token') // si tu as un token SonarQube
-    }
-
     stages {
-
         stage('Checkout') {
             steps {
-                git branch: 'main',
-                    url: 'https://github.com/khouloud472/Application-micro-service-country-service-.git',
+                git url: 'https://github.com/khouloud472/Application-micro-service-country-service-.git',
+                    branch: 'main',
                     credentialsId: 'github-token'
             }
         }
