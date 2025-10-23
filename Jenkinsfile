@@ -1,42 +1,43 @@
 pipeline {
     agent any
-    tools {
-        maven 'Maven'
-        jdk 'JDK17'
+
+    environment {
+        MAVEN_HOME = "/usr/share/maven"
     }
 
     stages {
         stage('Checkout') {
             steps {
-                git url: 'https://github.com/khouloud472/Application-micro-service-country-service-.git',
-                    branch: 'main',
-                    credentialsId: 'github-token'
+                git branch: 'main', url: 'https://github.com/tonrepo.git'
             }
         }
 
         stage('Build & Test') {
             steps {
-                sh 'mvn clean install -Dmaven.test.failure.ignore=true'
-            }
-            post {
-                always {
-                    junit allowEmptyResults: true, testResults: '**/target/surefire-reports/*.xml'
-                }
+                sh 'mvn clean package'
             }
         }
 
-        stage('SonarQube Analysis') {
+        stage('Deploy to Nexus') {
             steps {
-                sh "mvn clean deploy -Dnexus.username=${NEXUS_USERNAME} -Dnexus.password=${NEXUS_PASSWORD}"
-            }
-        }
-
-         stage('Build & Deploy to Nexus') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'nexus-credentials', usernameVariable: 'NEXUS_USERNAME', passwordVariable: 'NEXUS_PASSWORD')]) {
-                    sh "mvn clean deploy"
+                withCredentials([usernamePassword(credentialsId: 'nexus-creds', usernameVariable: 'NEXUS_USERNAME', passwordVariable: 'NEXUS_PASSWORD')]) {
+                    sh """
+                        mvn deploy \
+                          -Dnexus.username=${NEXUS_USERNAME} \
+                          -Dnexus.password=${NEXUS_PASSWORD} \
+                          -DskipTests
+                    """
                 }
             }
+        }
+    }
+
+    post {
+        success {
+            echo '✅ Build and deployment successful!'
+        }
+        failure {
+            echo '❌ Build or deployment failed!'
         }
     }
 }
