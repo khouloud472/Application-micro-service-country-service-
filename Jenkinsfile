@@ -53,19 +53,15 @@ pipeline {
             }
         }
 
-        stage('Deploy to Tomcat') {
-          steps {
-    sh '''
-                    TOMCAT_HOME=/usr/local/tomcat
-                    # Copier le WAR
-                    docker cp target/Reservationavion-*.war tomcat-custom:$TOMCAT_HOME/webapps/Reservationavion.war
-                    # Redémarrer Tomcat
-                    docker exec -it tomcat-custom $TOMCAT_HOME/bin/shutdown.sh || true
-                    docker exec -it tomcat-custom $TOMCAT_HOME/bin/startup.sh
+          stage('Deploy WAR to Tomcat') {
+            steps {
+                sh '''
+                TOMCAT_HOME=/usr/local/tomcat
+                docker cp target/Reservationavion-*.war tomcat-custom:$TOMCAT_HOME/webapps/Reservationavion.war
+                docker exec -it tomcat-custom $TOMCAT_HOME/bin/shutdown.sh || true
+                docker exec -it tomcat-custom $TOMCAT_HOME/bin/startup.sh
                 '''
-}
-
-            
+            }
         }
     }
 }
