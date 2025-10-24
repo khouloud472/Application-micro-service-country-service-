@@ -43,10 +43,11 @@ pipeline {
              steps {
                 withCredentials([usernamePassword(credentialsId: 'nexus-credentials', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
                   sh """
-                   mvn clean deploy \
-                  -DaltDeploymentRepository=nexus-app::default::http://localhost:8081/repository/Application-micro-service-country-service/ \
-                  -Dnexus.username=${NEXUS_USER} \
-                  -Dnexus.password=${NEXUS_PASS}
+                  mvn clean deploy \
+-DaltDeploymentRepository=nexus-app::default::http://localhost:8081/repository/Application-micro-service-country-service/ \
+-Dnexus.username=admin \
+-Dnexus.password=admin
+
                   """
                 }
             }
