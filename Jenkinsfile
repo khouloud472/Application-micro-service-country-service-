@@ -25,7 +25,6 @@ pipeline {
             }
         }
 
-
         stage('SonarQube Analysis') {
             steps {
                 withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
@@ -40,11 +39,9 @@ pipeline {
         }
 
         stage('Deploy to Nexus') {
-    steps {
-        sh "mvn clean deploy -s $HOME/.m2/settings.xml"
-    }
-}
-
-
+            steps {
+                sh "mvn clean deploy -s /var/lib/jenkins/.m2/settings.xml"
+            }
+        }
     }
 }
