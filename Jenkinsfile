@@ -25,6 +25,7 @@ pipeline {
             }
         }
 
+
         stage('SonarQube Analysis') {
             steps {
                 withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
@@ -37,6 +38,8 @@ pipeline {
                 }
             }
         }
+
+
 
         stage('Build & Deploy to Nexus') {
             steps {
