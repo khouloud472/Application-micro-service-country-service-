@@ -20,6 +20,6 @@ public class Country {
 	private String name;
 	@Column(name="capital_name")
 	private String Capital;
-
+//khouloud
 
 }
