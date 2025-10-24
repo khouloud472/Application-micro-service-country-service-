@@ -42,21 +42,26 @@ pipeline {
     steps {
         sh '''
         mvn clean package
-        mvn deploy:deploy-file \
-          -DgroupId=com.example.reservationavion \
-          -DartifactId=Reservationavion \
-          -Dversion=0.0.1-SNAPSHOT \
-          -Dpackaging=jar \
-          -Dfile=target/Reservationavion-0.0.1-SNAPSHOT.jar \
-          -DpomFile=pom.xml \
-          -DrepositoryId=nexus-snapshots \
-          -Durl=http://localhost:8081/repository/Application-micro-service-country-service/ \
-          -DretryFailedDeploymentCount=3
-        '''
+        mvn clean deploy -DskipTests
+        mvn deploy -DaltDeploymentRepository=nexus-releases::default::http://localhost:8081/repository/Application-micro-service-country-service/'''
     }
 }
 
-
+stage('Deploy to Tomcat') {
+    steps {
+        sh '''
+        # Définir le chemin vers Tomcat
+        TOMCAT_HOME=/opt/tomcat
+        
+        # Copier le .war
+        cp target/Reservationavion-0.0.1-SNAPSHOT.war $TOMCAT_HOME/webapps/
+        
+        # Redémarrer Tomcat pour prendre en compte le nouveau .war
+        $TOMCAT_HOME/bin/shutdown.sh || true
+        $TOMCAT_HOME/bin/startup.sh
+        '''
+    }
+}
 
     }
 }
