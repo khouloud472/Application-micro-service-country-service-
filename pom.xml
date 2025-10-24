@@ -71,17 +71,7 @@
         </dependency>
     </dependencies>
 
-    <distributionManagement>
-    <repository>
-        <id>nexus-app</id>
-        <name>Application Repository</name>
-        <url>http://localhost:8081/repository/Application-micro-service-country-service/</url>
-    </repository>
-    <snapshotRepository>
-        <id>nexus-app-snapshots</id>
-        <name>Application Snapshots</name>
-        <url>http://localhost:8081/repository/Application-micro-service-country-service/</url>
-    </snapshotRepository>
+   <distributionManagement>
     <repository>
         <id>nexus-app</id>
         <name>Nexus Releases</name>
@@ -93,6 +83,7 @@
         <url>http://localhost:8081/repository/Application-micro-service-country-service/</url>
     </snapshotRepository>
 </distributionManagement>
+
 
 
     <build>
