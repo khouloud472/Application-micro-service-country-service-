@@ -50,7 +50,7 @@ pipeline {
           -Dfile=target/Reservationavion-0.0.1-SNAPSHOT.jar \
           -DpomFile=pom.xml \
           -DrepositoryId=nexus-snapshots \
-          -Durl=http://localhost:8081/repository/Application-micro-service-country-service-snapshot/ \
+          -Durl=http://localhost:8081/repository/Application-micro-service-country-service/ \
           -DretryFailedDeploymentCount=3
         '''
     }
