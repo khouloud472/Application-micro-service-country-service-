@@ -55,12 +55,32 @@ pipeline {
 
           stage('Deploy WAR to Tomcat') {
             steps {
-                sh '''
-                TOMCAT_HOME=/usr/local/tomcat
-                docker cp target/Reservationavion-*.war tomcat-custom:$TOMCAT_HOME/webapps/Reservationavion.war
-                docker exec -it tomcat-custom $TOMCAT_HOME/bin/shutdown.sh || true
-                docker exec -it tomcat-custom $TOMCAT_HOME/bin/startup.sh
-                '''
+                script {
+                    // Définir le chemin Tomcat et le WAR
+                    def TOMCAT_HOME = "/mnt/c/Users/khouloud/Downloads/apache-tomcat-11.0.13/apache-tomcat-11.0.13"
+                    def WAR_FILE = "target/Reservationavion-0.0.1-SNAPSHOT.war"
+                    def DEPLOY_WAR = "${TOMCAT_HOME}/webapps/Reservationavion.war"
+
+                    // Supprimer ancienne version et copier le nouveau WAR
+                    sh """
+                        rm -rf ${TOMCAT_HOME}/webapps/Reservationavion
+                        cp ${WAR_FILE} ${DEPLOY_WAR}
+                    """
+
+                    // Redémarrer Tomcat
+                    sh """
+                        ${TOMCAT_HOME}/bin/shutdown.sh || true
+                        sleep 5
+                        ${TOMCAT_HOME}/bin/startup.sh
+                    """
+                }
+            }
+        }
+
+        stage('Verify Deployment') {
+            steps {
+                // Tester l'accès à l'application
+                sh 'curl -I http://localhost:8888/Reservationavion/'
             }
         }
     }
