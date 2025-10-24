@@ -39,9 +39,13 @@ pipeline {
         }
 
         stage('Deploy to Nexus') {
-            steps {
-                sh "mvn clean deploy -s /var/lib/jenkins/.m2/settings.xml"
-            }
+    steps {
+        script {
+            def repoId = env.BUILD_VERSION.endsWith("-SNAPSHOT") ? "nexus-snapshot" : "nexus-release"
+            sh "mvn clean deploy -s /var/lib/jenkins/.m2/settings.xml"
         }
+    }
+}
+
     }
 }
