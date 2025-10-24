@@ -56,19 +56,13 @@ pipeline {
         stage('Deploy to Tomcat') {
           steps {
     sh '''
-    # Définir le chemin vers Tomcat
-    TOMCAT_HOME=/opt/tomcat
-
-    # Copier le .war dans le répertoire webapps avec un nom standard
-    cp target/Reservationavion-*.war $TOMCAT_HOME/webapps/Reservationavion.war
-
-    # Redémarrer Tomcat en toute sécurité
-    $TOMCAT_HOME/bin/shutdown.sh || true
-    echo "Attente de 5 secondes pour l'arrêt complet de Tomcat..."
-    sleep 5
-    $TOMCAT_HOME/bin/startup.sh
-    echo "Tomcat redémarré et le .war a été déployé."
-    '''
+                    TOMCAT_HOME=/usr/local/tomcat
+                    # Copier le WAR
+                    docker cp target/Reservationavion-*.war tomcat-custom:$TOMCAT_HOME/webapps/Reservationavion.war
+                    # Redémarrer Tomcat
+                    docker exec -it tomcat-custom $TOMCAT_HOME/bin/shutdown.sh || true
+                    docker exec -it tomcat-custom $TOMCAT_HOME/bin/startup.sh
+                '''
 }
 
             
