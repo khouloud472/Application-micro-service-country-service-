@@ -72,14 +72,14 @@
     </dependencies>
 
     <!-- Déploiement SNAPSHOT et RELEASE -->
-    <distributionManagement>
+   <distributionManagement>
     <repository>
-        <id>nexus-app</id>
+        <id>nexus-releases</id>
         <name>Nexus Releases</name>
         <url>http://localhost:8081/repository/Application-micro-service-country-service-release/</url>
     </repository>
     <snapshotRepository>
-        <id>nexus-app</id>
+        <id>nexus-snapshots</id>
         <name>Nexus Snapshots</name>
         <url>http://localhost:8081/repository/Application-micro-service-country-service-snapshot/</url>
     </snapshotRepository>

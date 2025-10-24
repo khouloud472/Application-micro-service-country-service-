@@ -38,14 +38,25 @@ pipeline {
             }
         }
 
-        stage('Deploy to Nexus') {
+       stage('Deploy to Nexus') {
     steps {
-        script {
-            def repoId = env.BUILD_VERSION.endsWith("-SNAPSHOT") ? "nexus-snapshot" : "nexus-release"
-            sh "mvn clean deploy -s /var/lib/jenkins/.m2/settings.xml"
-        }
+        sh '''
+        mvn clean package
+        mvn deploy:deploy-file \
+          -DgroupId=com.example.reservationavion \
+          -DartifactId=Reservationavion \
+          -Dversion=0.0.1-SNAPSHOT \
+          -Dpackaging=jar \
+          -Dfile=target/Reservationavion-0.0.1-SNAPSHOT.jar \
+          -DpomFile=pom.xml \
+          -DrepositoryId=nexus-snapshots \
+          -Durl=http://localhost:8081/repository/Application-micro-service-country-service-snapshot/ \
+          -DretryFailedDeploymentCount=3
+        '''
     }
 }
+
+
 
     }
 }
