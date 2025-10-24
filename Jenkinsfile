@@ -42,8 +42,8 @@ pipeline {
     steps {
         sh '''
         mvn clean package
-        mvn clean deploy -DskipTests
-        mvn deploy -DaltDeploymentRepository=nexus-releases::default::http://localhost:8081/repository/Application-micro-service-country-service/'''
+        mvn deploy -Dnexus.username=admin -Dnexus.password=admin
+        '''
     }
 }
 
