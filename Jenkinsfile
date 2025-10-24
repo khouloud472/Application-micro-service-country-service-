@@ -54,19 +54,23 @@ pipeline {
         }
 
         stage('Deploy to Tomcat') {
-            steps {
-                sh '''
-                # Définir le chemin vers Tomcat
-                TOMCAT_HOME=/opt/tomcat
-                
-                # Copier le .war
-                cp target/Reservationavion-*.war $TOMCAT_HOME/webapps/
-                
-                # Redémarrer Tomcat pour prendre en compte le nouveau .war
-                $TOMCAT_HOME/bin/shutdown.sh || true
-                sleep 5
-                $TOMCAT_HOME/bin/startup.sh
-                '''
+          steps {
+    sh '''
+    # Définir le chemin vers Tomcat
+    TOMCAT_HOME=/opt/tomcat
+
+    # Copier le .war dans le répertoire webapps avec un nom standard
+    cp target/Reservationavion-*.war $TOMCAT_HOME/webapps/Reservationavion.war
+
+    # Redémarrer Tomcat en toute sécurité
+    $TOMCAT_HOME/bin/shutdown.sh || true
+    echo "Attente de 5 secondes pour l'arrêt complet de Tomcat..."
+    sleep 5
+    $TOMCAT_HOME/bin/startup.sh
+    echo "Tomcat redémarré et le .war a été déployé."
+    '''
+}
+
             }
         }
     }
