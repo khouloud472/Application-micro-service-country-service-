@@ -76,13 +76,13 @@
     <!-- Déploiement SNAPSHOT et RELEASE -->
   <distributionManagement>
   <repository>
-    <id>Application-micro-service-country-service</id>
-    <name>Application Micro Service Country Service</name>
+    <id>nexus-releases</id>
+    <name>Nexus Releases</name>
     <url>http://localhost:8081/repository/Application-micro-service-country-service/</url>
   </repository>
   <snapshotRepository>
-    <id>Application-micro-service-country-service</id>
-    <name>Application Micro Service Country Service Snapshots</name>
+    <id>nexus-snapshots</id>
+    <name>Nexus Snapshots</name>
     <url>http://localhost:8081/repository/Application-micro-service-country-service/</url>
   </snapshotRepository>
 </distributionManagement>
