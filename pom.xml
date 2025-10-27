@@ -18,19 +18,33 @@
     <version>0.0.1-SNAPSHOT</version>
     <packaging>war</packaging>
     <name>Reservationavion</name>
-    <description>Spring Boot Microservice</description>
+    <description>Spring Boot Microservice - Reservation Avion</description>
 
     <properties>
         <java.version>17</java.version>
         <sonar.host.url>http://localhost:9000</sonar.host.url>
         <sonar.login>a997c8d2dee5937e2ddd5d6125480fa85d1703c4</sonar.login>
-        </properties>
+    </properties>
 
     <dependencies>
         <!-- Spring Boot Web -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+            <!-- Exclure Tomcat embarqué pour WAR -->
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-tomcat</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!-- Tomcat fourni par le serveur d’application -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-tomcat</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <!-- Spring Data JPA -->
@@ -75,26 +89,38 @@
     </dependencies>
 
     <!-- Déploiement SNAPSHOT et RELEASE -->
-   <distributionManagement>
-    <repository>
-        <id>nexus-releases</id>
-        <name>Nexus Releases</name>
-        <url>http://localhost:8081/repository/Application-micro-service-country-service-release/</url>
-    </repository>
-    <snapshotRepository>
-        <id>nexus-snapshots</id>
-        <name>Nexus Snapshots</name>
-        <url>http://localhost:8081/repository/Application-micro-service-country-service-snapshot/</url>
-    </snapshotRepository>
-</distributionManagement>
-
+    <distributionManagement>
+        <repository>
+            <id>nexus-releases</id>
+            <name>Nexus Releases</name>
+            <url>http://localhost:8081/repository/Application-micro-service-country-service-release/</url>
+        </repository>
+        <snapshotRepository>
+            <id>nexus-snapshots</id>
+            <name>Nexus Snapshots</name>
+            <url>http://localhost:8081/repository/Application-micro-service-country-service-snapshot/</url>
+        </snapshotRepository>
+    </distributionManagement>
 
     <build>
         <plugins>
-            <!-- Spring Boot Maven Plugin -->
+            <!-- Spring Boot Plugin -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip> <!-- Empêche l’exécution du JAR -->
+                </configuration>
+            </plugin>
+
+            <!-- Compiler -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>17</source>
+                    <target>17</target>
+                </configuration>
             </plugin>
 
             <!-- SonarQube -->
@@ -104,7 +130,7 @@
                 <version>4.0.0.4121</version>
             </plugin>
 
-            <!-- Maven Surefire Plugin -->
+            <!-- Tests -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
