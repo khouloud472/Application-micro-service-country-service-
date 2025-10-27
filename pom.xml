@@ -16,7 +16,7 @@
   <groupId>com.example.reservationavion</groupId>
 <artifactId>reservationavion</artifactId>
 <version>0.0.1-SNAPSHOT</version>
-<packaging>war</packaging>
+
 
 <name>Reservationavion</name>
 <description>Spring Boot Microservice - Application de réservation d’avion</description>
