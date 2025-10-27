@@ -1,5 +1,6 @@
 pipeline {
     agent any
+
     tools {
         maven 'Maven'
         jdk 'JDK17'
@@ -8,15 +9,18 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git url: 'https://github.com/khouloud472/Application-micro-service-country-service-.git',
+                git(
+                    url: 'https://github.com/khouloud472/Application-micro-service-country-service-.git',
                     branch: 'main',
                     credentialsId: 'github-token'
+                )
             }
         }
 
         stage('Build & Test') {
             steps {
-                sh 'mvn clean install -Dmaven.test.failure.ignore=true'
+                // Compile le projet et génère le WAR (pas JAR)
+                sh 'mvn clean package -Dmaven.test.failure.ignore=true'
             }
             post {
                 always {
@@ -38,37 +42,60 @@ pipeline {
             }
         }
 
-        stage('Deploy to Nexus') {
+        stage('Deploy WAR to Nexus') {
             steps {
                 script {
-                    // Check if this is a SNAPSHOT version
+                    // On déploie le fichier WAR vers Nexus
                     def isSnapshot = sh(script: 'mvn help:evaluate -Dexpression=project.version -q -DforceStdout', returnStdout: true).trim().endsWith('-SNAPSHOT')
-                    
+
                     if (isSnapshot) {
-                        sh 'mvn deploy -Dnexus.username=admin -Dnexus.password=admin -DaltSnapshotDeploymentRepository=nexus-snapshots::default::http://localhost:8081/repository/maven-snapshots/'
+                        sh '''
+                            mvn deploy:deploy-file \
+                            -Dfile=target/Reservationavion-0.0.1-SNAPSHOT.war \
+                            -DgroupId=com.khouloud \
+                            -DartifactId=Reservationavion \
+                            -Dversion=0.0.1-SNAPSHOT \
+                            -Dpackaging=war \
+                            -DrepositoryId=nexus-snapshots \
+                            -Durl=http://localhost:8081/repository/maven-snapshots/ \
+                            -Dusername=admin \
+                            -Dpassword=admin
+                        '''
                     } else {
-                        sh 'mvn deploy -Dnexus.username=admin -Dnexus.password=admin -DaltReleaseDeploymentRepository=nexus-releases::default::http://localhost:8081/repository/maven-releases/'
+                        sh '''
+                            mvn deploy:deploy-file \
+                            -Dfile=target/Reservationavion-0.0.1.war \
+                            -DgroupId=com.khouloud \
+                            -DartifactId=Reservationavion \
+                            -Dversion=0.0.1 \
+                            -Dpackaging=war \
+                            -DrepositoryId=nexus-releases \
+                            -Durl=http://localhost:8081/repository/maven-releases/ \
+                            -Dusername=admin \
+                            -Dpassword=admin
+                        '''
                     }
                 }
             }
         }
 
-          stage('Deploy WAR to Tomcat') {
+        stage('Deploy WAR to Tomcat') {
             steps {
                 script {
-                    // Définir le chemin Tomcat et le WAR
                     def TOMCAT_HOME = "/mnt/c/Users/khouloud/Downloads/apache-tomcat-11.0.13/apache-tomcat-11.0.13"
                     def WAR_FILE = "target/Reservationavion-0.0.1-SNAPSHOT.war"
                     def DEPLOY_WAR = "${TOMCAT_HOME}/webapps/Reservationavion.war"
 
-                    // Supprimer ancienne version et copier le nouveau WAR
+                    // Copie du WAR sur Tomcat
                     sh """
+                        echo "🔹 Déploiement du WAR dans Tomcat..."
                         rm -rf ${TOMCAT_HOME}/webapps/Reservationavion
                         cp ${WAR_FILE} ${DEPLOY_WAR}
                     """
 
-                    // Redémarrer Tomcat
+                    // Redémarrage de Tomcat
                     sh """
+                        echo "🔹 Redémarrage de Tomcat..."
                         ${TOMCAT_HOME}/bin/shutdown.sh || true
                         sleep 5
                         ${TOMCAT_HOME}/bin/startup.sh
@@ -79,7 +106,7 @@ pipeline {
 
         stage('Verify Deployment') {
             steps {
-                // Tester l'accès à l'application
+                // Vérifie si l’application est bien déployée
                 sh 'curl -I http://localhost:8888/Reservationavion/'
             }
         }
