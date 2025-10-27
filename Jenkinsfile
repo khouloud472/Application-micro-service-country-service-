@@ -86,13 +86,13 @@ pipeline {
 
             // Télécharger le WAR depuis Nexus
             sh """
-                echo "🔹 Téléchargement du WAR depuis Nexus..."
+                echo "Téléchargement du WAR depuis Nexus..."
                 curl -f -L -o "${TOMCAT_HOME}/webapps/${WAR_NAME}" "${NEXUS_URL}"
             """
 
             // Redémarrage de Tomcat
             sh """
-                echo "🔹 Redémarrage de Tomcat..."
+                echo "Redémarrage de Tomcat..."
                 bash "${TOMCAT_HOME}/bin/shutdown.sh" || true
                 sleep 5
                 bash "${TOMCAT_HOME}/bin/startup.sh"
@@ -104,7 +104,7 @@ pipeline {
 stage('Verify Deployment') {
     steps {
         script {
-            echo "🔹 Vérification du déploiement..."
+            echo "Vérification du déploiement..."
             sh 'sleep 10' // Attendre que Tomcat démarre
             sh 'curl -I http://localhost:8888/Reservationavion/ || true'
         }
