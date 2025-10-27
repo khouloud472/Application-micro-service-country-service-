@@ -85,7 +85,7 @@ pipeline {
                 script {
                     def TOMCAT_HOME = "/mnt/c/Users/khouloud/Downloads/apache-tomcat-11.0.13/apache-tomcat-11.0.13"
                     def WAR_NAME = "Reservationavion.war"
-                    def NEXUS_URL = "http://admin:admin@localhost:8081/repository/maven-snapshots/com/khouloud/reservationavion/0.0.1-SNAPSHOT/reservationavion-0.0.1-SNAPSHOT.war"
+                    def NEXUS_URL = "http://admin:admin@localhost:8081/repository/maven-snapshots/com/khouloud/Reservationavion/0.0.1-SNAPSHOT/Reservationavion-0.0.1-20251027.044043-1.war"
 
                     // Télécharger le WAR depuis Nexus
                     sh """
@@ -93,7 +93,7 @@ pipeline {
                         curl -f -L -o "${TOMCAT_HOME}/webapps/${WAR_NAME}" "${NEXUS_URL}"
                     """
 
-                    // Redémarrage de Tomcat
+                    // Redémarrage de Tomcatcom/khouloud/Reservationavion/0.0.1-SNAPSHOT/Reservationavion-0.0.1-20251027.044043-1.war
                     sh """
                         echo " Redémarrage de Tomcat..."
                         bash "${TOMCAT_HOME}/bin/shutdown.sh" || true
