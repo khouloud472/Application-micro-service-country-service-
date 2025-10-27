@@ -44,7 +44,10 @@ pipeline {
         stage('Deploy WAR to Nexus') {
             steps {
                 script {
-                    def isSnapshot = sh(script: 'mvn help:evaluate -Dexpression=project.version -q -DforceStdout', returnStdout: true).trim().endsWith('-SNAPSHOT')
+                    def isSnapshot = sh(
+                        script: 'mvn help:evaluate -Dexpression=project.version -q -DforceStdout', 
+                        returnStdout: true
+                    ).trim().endsWith('-SNAPSHOT')
 
                     if (isSnapshot) {
                         sh '''
@@ -78,35 +81,37 @@ pipeline {
         }
 
         stage('Deploy WAR from Nexus to Tomcat') {
-    steps {
-        script {
-            def TOMCAT_HOME = "/mnt/c/Users/khouloud/Downloads/apache-tomcat-11.0.13/apache-tomcat-11.0.13"
-            def WAR_NAME = "Reservationavion.war"
-            def NEXUS_URL = "http://admin:admin@localhost:8081/repository/maven-snapshots/com/khouloud/reservationavion/0.0.1-SNAPSHOT/reservationavion-0.0.1-SNAPSHOT.war"
+            steps {
+                script {
+                    def TOMCAT_HOME = "/mnt/c/Users/khouloud/Downloads/apache-tomcat-11.0.13/apache-tomcat-11.0.13"
+                    def WAR_NAME = "Reservationavion.war"
+                    def NEXUS_URL = "http://admin:admin@localhost:8081/repository/maven-snapshots/com/khouloud/reservationavion/0.0.1-SNAPSHOT/reservationavion-0.0.1-SNAPSHOT.war"
 
-            // Télécharger le WAR depuis Nexus
-            sh """
-                echo "Téléchargement du WAR depuis Nexus..."
-                curl -f -L -o "${TOMCAT_HOME}/webapps/${WAR_NAME}" "${NEXUS_URL}"
-            """
+                    // Télécharger le WAR depuis Nexus
+                    sh """
+                        echo " Téléchargement du WAR depuis Nexus..."
+                        curl -f -L -o "${TOMCAT_HOME}/webapps/${WAR_NAME}" "${NEXUS_URL}"
+                    """
 
-            // Redémarrage de Tomcat
-            sh """
-                echo "Redémarrage de Tomcat..."
-                bash "${TOMCAT_HOME}/bin/shutdown.sh" || true
-                sleep 5
-                bash "${TOMCAT_HOME}/bin/startup.sh"
-            """
+                    // Redémarrage de Tomcat
+                    sh """
+                        echo " Redémarrage de Tomcat..."
+                        bash "${TOMCAT_HOME}/bin/shutdown.sh" || true
+                        sleep 5
+                        bash "${TOMCAT_HOME}/bin/startup.sh"
+                    """
+                }
+            }
         }
-    }
-}
 
-stage('Verify Deployment') {
-    steps {
-        script {
-            echo "Vérification du déploiement..."
-            sh 'sleep 10' // Attendre que Tomcat démarre
-            sh 'curl -I http://localhost:8888/Reservationavion/ || true'
+        stage('Verify Deployment') {
+            steps {
+                script {
+                    echo " Vérification du déploiement..."
+                    sh 'sleep 10' // Attendre que Tomcat démarre
+                    sh 'curl -I http://localhost:8888/Reservationavion/ || true'
+                }
+            }
         }
-    }
-}
+    } // Fin de stages
+} // Fin du pipeline
