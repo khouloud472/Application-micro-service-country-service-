@@ -19,7 +19,6 @@ pipeline {
 
         stage('Build & Test') {
             steps {
-                // Compile le projet et génère le WAR (pas JAR)
                 sh 'mvn clean package -Dmaven.test.failure.ignore=true'
             }
             post {
@@ -45,7 +44,6 @@ pipeline {
         stage('Deploy WAR to Nexus') {
             steps {
                 script {
-                    // On déploie le fichier WAR vers Nexus
                     def isSnapshot = sh(script: 'mvn help:evaluate -Dexpression=project.version -q -DforceStdout', returnStdout: true).trim().endsWith('-SNAPSHOT')
 
                     if (isSnapshot) {
@@ -80,39 +78,38 @@ pipeline {
         }
 
         stage('Deploy WAR to Tomcat') {
-    steps {
-        script {
-            // ⚙️ Chemins corrects sous WSL
-            def TOMCAT_HOME = "/mnt/c/Users/khouloud/Downloads/apache-tomcat-11.0.13/apache-tomcat-11.0.13"
-            def WAR_FILE = "target/Reservationavion-0.0.1-SNAPSHOT.war"
-            def DEPLOY_WAR = "${TOMCAT_HOME}/webapps/Reservationavion.war"
+            steps {
+                script {
+                    def TOMCAT_HOME = "/mnt/c/Users/khouloud/Downloads/apache-tomcat-11.0.13/apache-tomcat-11.0.13"
+                    def WAR_FILE = "target/Reservationavion-0.0.1-SNAPSHOT.war"
+                    def DEPLOY_WAR = "${TOMCAT_HOME}/webapps/Reservationavion.war"
 
-            // 🔹 Déploiement du WAR dans Tomcat
-            sh """
-                echo "🔹 Déploiement du WAR dans Tomcat..."
-                if [ -d "${TOMCAT_HOME}/webapps/Reservationavion" ]; then
-                    rm -rf "${TOMCAT_HOME}/webapps/Reservationavion"
-                fi
-                cp "${WAR_FILE}" "${DEPLOY_WAR}"
-            """
+                    sh """
+                        echo "Déploiement du WAR dans Tomcat..."
+                        if [ -d "${TOMCAT_HOME}/webapps/Reservationavion" ]; then
+                            rm -rf "${TOMCAT_HOME}/webapps/Reservationavion"
+                        fi
+                        cp "${WAR_FILE}" "${DEPLOY_WAR}"
+                    """
 
-            // 🔹 Redémarrage propre de Tomcat
-            sh """
-                echo "🔹 Redémarrage de Tomcat..."
-                bash "${TOMCAT_HOME}/bin/shutdown.sh" || true
-                sleep 5
-                bash "${TOMCAT_HOME}/bin/startup.sh"
-            """
+                    sh """
+                        echo "Redémarrage de Tomcat..."
+                        bash "${TOMCAT_HOME}/bin/shutdown.sh" || true
+                        sleep 5
+                        bash "${TOMCAT_HOME}/bin/startup.sh"
+                    """
+                }
+            }
         }
-    }
-}
 
-stage('Verify Deployment') {
-    steps {
-        script {
-            echo "🔹 Vérification du déploiement..."
-            sh 'sleep 10' // Donne le temps à Tomcat de démarrer
-            sh 'curl -I http://localhost:8888/Reservationavion/ || true'
+        stage('Verify Deployment') {
+            steps {
+                script {
+                    echo "Vérification du déploiement..."
+                    sh 'sleep 10'
+                    sh 'curl -I http://localhost:8888/Reservationavion/ || true'
+                }
+            }
         }
-    }
-}
+    } // <- Fin de stages
+} // <- FIN pipeline
