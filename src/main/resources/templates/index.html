@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Country Management</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        table { border-collapse: collapse; width: 80%; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+        th { background-color: #f2f2f2; }
+        input, button { padding: 5px; margin: 5px; }
+        button { cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Country Management</h1>
+
+    <div>
+        <h3>Add / Update Country</h3>
+        <input type="number" id="idCountry" placeholder="ID (leave empty to add)">
+        <input type="text" id="nameCountry" placeholder="Country Name">
+        <input type="text" id="capital" placeholder="Capital">
+        <button onclick="addOrUpdateCountry()">Add / Update</button>
+    </div>
+
+    <div>
+        <h3>Search Country by Name</h3>
+        <input type="text" id="searchName" placeholder="Country Name">
+        <button onclick="searchCountry()">Search</button>
+    </div>
+
+    <h3>Countries List</h3>
+    <button onclick="getCountries()">Refresh List</button>
+    <table id="countriesTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Capital</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <script>
+        const apiBase = "http://localhost:8087/countries";
+
+        async function getCountries() {
+            const res = await fetch(apiBase);
+            const countries = await res.json();
+            const tbody = document.querySelector("#countriesTable tbody");
+            tbody.innerHTML = "";
+            countries.forEach(c => {
+                tbody.innerHTML += `<tr>
+                    <td>${c.idCountry}</td>
+                    <td>${c.name}</td>
+                    <td>${c.capital}</td>
+                    <td>
+                        <button onclick="editCountry(${c.idCountry}, '${c.name}', '${c.capital}')">Edit</button>
+                        <button onclick="deleteCountry(${c.idCountry})">Delete</button>
+                    </td>
+                </tr>`;
+            });
+        }
+
+        async function addOrUpdateCountry() {
+            const id = document.getElementById("idCountry").value;
+            const name = document.getElementById("nameCountry").value.trim();
+            const capital = document.getElementById("capital").value.trim();
+            if (!name || !capital) { alert("Please enter name and capital."); return; }
+
+            const country = id ? { idCountry: parseInt(id), name, capital } : { name, capital };
+            const method = id ? "PUT" : "POST";
+            const url = id ? `${apiBase}/${id}` : apiBase;
+
+            await fetch(url, {
+                method, headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(country)
+            });
+
+            clearForm(); getCountries();
+        }
+
+        async function deleteCountry(id) {
+            if (!confirm("Delete this country?")) return;
+            await fetch(`${apiBase}/${id}`, { method: "DELETE" });
+            getCountries();
+        }
+
+        async function searchCountry() {
+            const name = document.getElementById("searchName").value.trim();
+            if (!name) { alert("Enter a country name."); return; }
+            const res = await fetch(`${apiBase}/search?name=${name}`);
+            if (!res.ok) { alert("Country not found."); return; }
+            const country = await res.json();
+            alert(`ID: ${country.idCountry}\nName: ${country.name}\nCapital: ${country.capital}`);
+        }
+
+        function editCountry(id, name, capital) {
+            document.getElementById("idCountry").value = id;
+            document.getElementById("nameCountry").value = name;
+            document.getElementById("capital").value = capital;
+        }
+
+        function clearForm() {
+            document.getElementById("idCountry").value = "";
+            document.getElementById("nameCountry").value = "";
+            document.getElementById("capital").value = "";
+        }
+
+        // load countries initially
+        getCountries();
+    </script>
+</body>
+</html>

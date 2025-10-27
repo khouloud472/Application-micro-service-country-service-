@@ -12,7 +12,8 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@RequestMapping("/countries")  // Base URL
+@RequestMapping("/countries") 
+@CrossOrigin(origins = "*")
 public class CountryController {
 
     @Autowired
@@ -29,7 +30,6 @@ public class CountryController {
         }
     }
 
-    // ✅ GET country by ID
     @GetMapping("/{id}")
     public ResponseEntity<Country> getCountryById(@PathVariable int id) {
         try {
@@ -44,7 +44,7 @@ public class CountryController {
         }
     }
 
-    // ✅ GET country by name (via param)
+
     @GetMapping("/search")
     public ResponseEntity<Country> getCountryByName(@RequestParam String name) {
         try {
@@ -59,7 +59,6 @@ public class CountryController {
         }
     }
 
-    // ✅ POST - Add new country
     @PostMapping
     public ResponseEntity<Country> addCountry(@RequestBody Country country) {
         try {
@@ -70,7 +69,6 @@ public class CountryController {
         }
     }
 
-    // ✅ PUT - Update existing country
     @PutMapping("/{id}")
     public ResponseEntity<Country> updateCountry(@PathVariable int id, @RequestBody Country country) {
         try {
@@ -88,7 +86,6 @@ public class CountryController {
         }
     }
 
-    // ✅ DELETE - Delete by ID
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCountry(@PathVariable int id) {
         try {
