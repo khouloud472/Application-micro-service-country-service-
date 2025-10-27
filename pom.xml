@@ -84,15 +84,11 @@
     <snapshotRepository>
         <id>nexus-snapshots</id>
         <name>Nexus Snapshots</name>
-        <url>http://localhost:8081/repository/Application-micro-service-country-service-snapshot/</url>
+        <url>http://localhost:8081/repository/maven-snapshots/</url>
+        <uniqueVersion>false</uniqueVersion>
     </snapshotRepository>
-    <snapshotRepository>
-    <id>nexus-snapshots</id>
-    <url>http://localhost:8081/repository/maven-snapshots/</url>
-    <uniqueVersion>false</uniqueVersion>
-</snapshotRepository>
-
 </distributionManagement>
+
 
 
     <build>
