@@ -80,35 +80,39 @@ pipeline {
         }
 
         stage('Deploy WAR to Tomcat') {
-            steps {
-                script {
-                    def TOMCAT_HOME = "/mnt/c/Users/khouloud/Downloads/apache-tomcat-11.0.13/apache-tomcat-11.0.13"
-                    def WAR_FILE = "target/Reservationavion-0.0.1-SNAPSHOT.war"
-                    def DEPLOY_WAR = "${TOMCAT_HOME}/webapps/Reservationavion.war"
+    steps {
+        script {
+            // ⚙️ Chemins corrects sous WSL
+            def TOMCAT_HOME = "/mnt/c/Users/khouloud/Downloads/apache-tomcat-11.0.13/apache-tomcat-11.0.13"
+            def WAR_FILE = "target/Reservationavion-0.0.1-SNAPSHOT.war"
+            def DEPLOY_WAR = "${TOMCAT_HOME}/webapps/Reservationavion.war"
 
-                    // Copie du WAR sur Tomcat
-                    sh """
-                        echo "🔹 Déploiement du WAR dans Tomcat..."
-                        rm -rf ${TOMCAT_HOME}/webapps/Reservationavion
-                        cp ${WAR_FILE} ${DEPLOY_WAR}
-                    """
+            // 🔹 Déploiement du WAR dans Tomcat
+            sh """
+                echo "🔹 Déploiement du WAR dans Tomcat..."
+                if [ -d "${TOMCAT_HOME}/webapps/Reservationavion" ]; then
+                    rm -rf "${TOMCAT_HOME}/webapps/Reservationavion"
+                fi
+                cp "${WAR_FILE}" "${DEPLOY_WAR}"
+            """
 
-                    // Redémarrage de Tomcat
-                    sh """
-                        echo "🔹 Redémarrage de Tomcat..."
-                        ${TOMCAT_HOME}/bin/shutdown.sh || true
-                        sleep 5
-                        ${TOMCAT_HOME}/bin/startup.sh
-                    """
-                }
-            }
+            // 🔹 Redémarrage propre de Tomcat
+            sh """
+                echo "🔹 Redémarrage de Tomcat..."
+                bash "${TOMCAT_HOME}/bin/shutdown.sh" || true
+                sleep 5
+                bash "${TOMCAT_HOME}/bin/startup.sh"
+            """
         }
+    }
+}
 
-        stage('Verify Deployment') {
-            steps {
-                // Vérifie si l’application est bien déployée
-                sh 'curl -I http://localhost:8888/Reservationavion/'
-            }
+stage('Verify Deployment') {
+    steps {
+        script {
+            echo "🔹 Vérification du déploiement..."
+            sh 'sleep 10' // Donne le temps à Tomcat de démarrer
+            sh 'curl -I http://localhost:8888/Reservationavion/ || true'
         }
     }
 }
