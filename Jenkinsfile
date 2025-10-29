@@ -48,36 +48,51 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
-            steps {
-                sh "docker build . -t ${IMAGE_NAME}:${BUILD_NUMBER}"
-            }
-        }
+ stage('Test Docker') {
+    steps {
+        sh 'docker version'
+        sh 'docker info'
+    }
+}
 
-        stage('Push Docker Image to Hub') {
-            steps {
-                withCredentials([string(credentialsId: "${DOCKERHUB_CREDENTIALS}", variable: 'DOCKERHUB_PWD')]) {
-                    sh "echo ${DOCKERHUB_PWD} | docker login -u ${DOCKERHUB_USER} --password-stdin"
-                    sh "docker tag ${IMAGE_NAME}:${BUILD_NUMBER} ${DOCKERHUB_USER}/${IMAGE_NAME}:${BUILD_NUMBER}"
-                    sh "docker push ${DOCKERHUB_USER}/${IMAGE_NAME}:${BUILD_NUMBER}"
-                }
-            }
-        }
+stage('Build Docker Image') {
+    steps {
+        // Construire l'image Docker
+        sh "docker build -t my-country-service:v3 ."
+        
+        // Lancer le conteneur en arrière-plan pour test local
+        sh "docker run -d -p 8086:8080 --name my-country-service-test my-country-service:v3"
+    }
+}
 
-        stage('Deploy Micro-Service via Docker') {
-            steps {
-                sh "docker rm -f \$(docker ps -aq) || true"
-                sh "docker run -d -p 8086:8080 --name ${IMAGE_NAME}-${BUILD_NUMBER} ${DOCKERHUB_USER}/${IMAGE_NAME}:${BUILD_NUMBER}"
-            }
-        }
+stage('Push Docker Image to Hub') {
+    steps {
+        // Connexion à Docker Hub
+        sh "docker login -u khouloud -p ton_mot_de_passe"
+        
+        // Tag et push de l'image
+        sh "docker tag my-country-service:v3 khouloud/my-country-service:v3"
+        sh "docker push khouloud/my-country-service:v3"
+    }
+}
 
-        stage('Verify Docker Deployment') {
-            steps {
-                echo "Vérification du service Docker..."
-                sh 'sleep 10'
-                sh 'curl -I http://localhost:8086/api/countries || true'
-            }
-        }
+stage('Deploy Micro-Service via Docker') {
+    steps {
+        // Supprimer tous les conteneurs existants
+        sh "docker rm -f \$(docker ps -aq) || true"
+        
+        // Lancer le conteneur en arrière-plan
+        sh "docker run -d -p 8086:8080 --name my-country-service my-country-service:v3"
+    }
+}
+
+stage('Verify Docker Deployment') {
+    steps {
+        echo "Vérification du service Docker..."
+        sh 'sleep 10' // Attendre que le conteneur démarre
+        sh 'curl -I http://localhost:8086/api/countries || true'
+    }
+}
 
         stage('Deploy WAR to Nexus') {
             steps {
