@@ -6,7 +6,14 @@ pipeline {
         jdk 'JDK17'
     }
 
+    environment {
+        IMAGE_NAME = "my-country-service"
+        DOCKERHUB_USER = "jamina2385"
+        DOCKERHUB_CREDENTIALS = "dockerhub-pwd"
+    }
+
     stages {
+
         stage('Checkout') {
             steps {
                 git(
@@ -59,22 +66,18 @@ pipeline {
 
         stage('Deploy Micro-Service via Docker') {
             steps {
-                // Supprime tous les conteneurs existants (optionnel)
                 sh "docker rm -f \$(docker ps -aq) || true"
-
-                // Lancer le conteneur avec le port 8086
                 sh "docker run -d -p 8086:8080 --name ${IMAGE_NAME}-${BUILD_NUMBER} ${DOCKERHUB_USER}/${IMAGE_NAME}:${BUILD_NUMBER}"
             }
         }
 
-        stage('Verify Deployment') {
+        stage('Verify Docker Deployment') {
             steps {
-                echo "Vérification du service..."
-                sh 'sleep 10' // attendre que le conteneur démarre
+                echo "Vérification du service Docker..."
+                sh 'sleep 10'
                 sh 'curl -I http://localhost:8086/api/countries || true'
             }
         }
-
 
         stage('Deploy WAR to Nexus') {
             steps {
@@ -122,15 +125,13 @@ pipeline {
                     def WAR_NAME = "Reservationavion.war"
                     def NEXUS_URL = "http://admin:admin@localhost:8081/repository/maven-snapshots/com/khouloud/Reservationavion/0.0.1-SNAPSHOT/Reservationavion-0.0.1-20251027.044043-1.war"
 
-                    // Télécharger le WAR depuis Nexus
                     sh """
-                        echo " Téléchargement du WAR depuis Nexus..."
+                        echo "Téléchargement du WAR depuis Nexus..."
                         curl -f -L -o "${TOMCAT_HOME}/webapps/${WAR_NAME}" "${NEXUS_URL}"
                     """
 
-                    // Redémarrage de Tomcatcom/khouloud/Reservationavion/0.0.1-SNAPSHOT/Reservationavion-0.0.1-20251027.044043-1.war
                     sh """
-                        echo " Redémarrage de Tomcat..."
+                        echo "Redémarrage de Tomcat..."
                         bash "${TOMCAT_HOME}/bin/shutdown.sh" || true
                         sleep 5
                         bash "${TOMCAT_HOME}/bin/startup.sh"
@@ -139,14 +140,13 @@ pipeline {
             }
         }
 
-        stage('Verify Deployment') {
+        stage('Verify Tomcat Deployment') {
             steps {
-                script {
-                    echo " Vérification du déploiement..."
-                    sh 'sleep 10' // Attendre que Tomcat démarre
-                    sh 'curl -I http://localhost:8888/Reservationavion/ || true'
-                }
+                echo "Vérification du déploiement Tomcat..."
+                sh 'sleep 10'
+                sh 'curl -I http://localhost:8888/Reservationavion/ || true'
             }
         }
-    } // Fin de stages
-} // Fin du pipeline
+
+    } // Fin stages
+} // Fin pipeline
