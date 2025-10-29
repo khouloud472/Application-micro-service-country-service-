@@ -1,0 +1,12 @@
+services:
+  my-compte-service1:
+    build: .
+    container_name: my-compte-service1
+    ports:
+      - "8086:8080"   # hôte:conteneur
+
+  my-compte-service2:
+    build: .
+    container_name: my-compte-service2
+    ports:
+      - "8087:8080"   # hôte:conteneur

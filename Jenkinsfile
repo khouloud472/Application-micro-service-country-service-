@@ -41,6 +41,41 @@ pipeline {
             }
         }
 
+        stage('Build Docker Image') {
+            steps {
+                sh "docker build . -t ${IMAGE_NAME}:${BUILD_NUMBER}"
+            }
+        }
+
+        stage('Push Docker Image to Hub') {
+            steps {
+                withCredentials([string(credentialsId: "${DOCKERHUB_CREDENTIALS}", variable: 'DOCKERHUB_PWD')]) {
+                    sh "echo ${DOCKERHUB_PWD} | docker login -u ${DOCKERHUB_USER} --password-stdin"
+                    sh "docker tag ${IMAGE_NAME}:${BUILD_NUMBER} ${DOCKERHUB_USER}/${IMAGE_NAME}:${BUILD_NUMBER}"
+                    sh "docker push ${DOCKERHUB_USER}/${IMAGE_NAME}:${BUILD_NUMBER}"
+                }
+            }
+        }
+
+        stage('Deploy Micro-Service via Docker') {
+            steps {
+                // Supprime tous les conteneurs existants (optionnel)
+                sh "docker rm -f \$(docker ps -aq) || true"
+
+                // Lancer le conteneur avec le port 8086
+                sh "docker run -d -p 8086:8080 --name ${IMAGE_NAME}-${BUILD_NUMBER} ${DOCKERHUB_USER}/${IMAGE_NAME}:${BUILD_NUMBER}"
+            }
+        }
+
+        stage('Verify Deployment') {
+            steps {
+                echo "Vérification du service..."
+                sh 'sleep 10' // attendre que le conteneur démarre
+                sh 'curl -I http://localhost:8086/api/countries || true'
+            }
+        }
+
+
         stage('Deploy WAR to Nexus') {
             steps {
                 script {
