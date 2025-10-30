@@ -92,13 +92,25 @@ stage('Verify Docker Deployment') {
 }*/stage('Deploy to Kubernetes') {
     steps {
         script {
-            
-                // KUBECONFIG pointe automatiquement vers le fichier temporaire créé par Jenkins
-                sh 'kubectl apply -f my-deployment.yaml'
-                sh 'minikube service my-country-service'
+            // KUBECONFIG pointe automatiquement vers le fichier temporaire créé par Jenkins
+            withCredentials([file(credentialsId: 'kubeconfig-file', variable: 'KUBECONFIG')]) {
+                
+                // Vérifier le contexte Minikube
+                sh 'kubectl config view'
+                sh 'kubectl get nodes'
+
+                // Appliquer les manifestes
+                sh 'kubectl apply -f k8s/deployment.yaml --validate=false'
+                sh 'kubectl apply -f k8s/service.yaml --validate=false'
+
+                // Vérifier que tout est ok
+                sh 'kubectl get pods -o wide'
+                sh 'kubectl get svc -o wide'
+            }
         }
     }
 }
+
 
 /*
         stage('Deploy WAR to Nexus') {
