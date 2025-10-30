@@ -93,7 +93,7 @@ stage('Verify Docker Deployment') {
 stage('Deploy to Kubernetes') {
     steps {
         script {
-            withCredentials([file(credentialsId: 'kubeconfig-file']) {
+            withCredentials([file(credentialsId: 'kubeconfig-file', serverUrl: '')]) {
                 sh 'kubectl apply -f k8s/deployment.yaml'
                 sh 'kubectl apply -f k8s/service.yaml'
             }
