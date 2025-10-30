@@ -8,7 +8,7 @@ pipeline {
 
     environment {
         IMAGE_NAME = "my-country-service"
-        DOCKERHUB_USER = "jamina2385"
+        DOCKERHUB_USER = "khouloudchrif"
         DOCKERHUB_CREDENTIALS = "dockerhub-pwd"
     }
 
@@ -47,21 +47,21 @@ pipeline {
                 }
             }
         }
-*/
+
  stage('Test Docker') {
     steps {
         sh 'docker version'
         sh 'docker info'
     }
-}
+}*/
 
 stage('Build Docker Image') {
     steps {
         // Construire l'image Docker
-        sh "docker build -t my-country-service:v3 ."
+        sh "docker build -t my-country-service:v9 ."
         
         // Lancer le conteneur en arrière-plan pour test local
-        sh "docker run -d -p 8086:8080 --name my-country-service-test my-country-service:v3"
+        sh "docker run -d -p 8086:8080 --name my-country-service-test my-country-service:v9"
     }
 }
 
@@ -71,8 +71,8 @@ stage('Push Docker Image to Hub') {
         sh "docker login"
         
         // Tag et push de l'image
-        sh "docker tag my-country-service:v3 khouloud/my-country-service:v3"
-        sh "docker push khouloud/my-country-service:v3"
+        sh "docker tag my-country-service:v9 khouloudchrif/my-country-service:v9"
+        sh "docker push khouloudchrif/my-country-service:v9"
     }
 }
 
@@ -82,17 +82,17 @@ stage('Deploy Micro-Service via Docker') {
         sh "docker rm -f \$(docker ps -aq) || true"
         
         // Lancer le conteneur en arrière-plan
-        sh "docker run -d -p 8086:8080 --name my-country-service my-country-service:v3"
+        sh "docker run -d -p 8086:8080 --name my-country-service my-country-service:v9"
     }
 }
-
+/*
 stage('Verify Docker Deployment') {
     steps {
         echo "Vérification du service Docker..."
         sh 'sleep 10' // Attendre que le conteneur démarre
-        sh 'curl -I http://localhost:8086/api/countries || true'
+        sh 'curl -I http://localhost:8086/countries || true'
     }
-}
+}*/
 stage('Deploy to Kubernetes') {
     steps {
         script {
