@@ -90,7 +90,16 @@ stage('Verify Docker Deployment') {
         sh 'curl -I http://localhost:8086/countries || true'
     }
 }*/
-
+stage('Deploy to Kubernetes') {
+    steps {
+        script {
+            withCredentials([file(credentialsId: 'kubeconfig-file']) {
+                sh 'kubectl apply -f k8s/deployment.yaml'
+                sh 'kubectl apply -f k8s/service.yaml'
+            }
+        }
+    }
+}
 
 /*
         stage('Deploy WAR to Nexus') {
