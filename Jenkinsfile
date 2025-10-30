@@ -93,7 +93,9 @@ stage('Verify Docker Deployment') {
         sh 'sleep 10' // Attendre que le conteneur démarre
         sh 'curl -I http://localhost:8086/countries || true'
     }
-}*/stage('Deploy to Kubernetes') {
+}*/
+
+stage('Deploy to Kubernetes') {
     steps {
         script {
           
