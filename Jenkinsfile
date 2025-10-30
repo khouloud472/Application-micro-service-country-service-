@@ -73,15 +73,19 @@ stage('Build Docker Image') {
     }
 }*/
 
-stage('Deploy Micro-Service via Docker') {
+stage('Deploy to Kubernetes') {
     steps {
-        // Supprimer tous les conteneurs existants
-        sh "docker rm -f \$(docker ps -aq) || true"
-        
-        // Lancer le conteneur en arrière-plan
-        sh "docker run -d -p 8086:8080 --name my-country-service my-country-service:v9"
+        script {
+            // Assurez-vous que Jenkins a accès au kubeconfig
+            sh 'kubectl config use-context minikube'
+            
+            // Appliquer les manifestes sans validation automatique (optionnel si erreur)
+            sh 'kubectl apply -f my-deployment.yaml --validate=false'
+            sh 'kubectl apply -f service.yaml --validate=false'
+        }
     }
 }
+
 /*
 stage('Verify Docker Deployment') {
     steps {
