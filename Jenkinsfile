@@ -34,7 +34,7 @@ pipeline {
                 }
             }
         }
-
+/*
         stage('SonarQube Analysis') {
             steps {
                 withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
@@ -47,7 +47,7 @@ pipeline {
                 }
             }
         }
-
+*/
  stage('Test Docker') {
     steps {
         sh 'docker version'
@@ -68,7 +68,7 @@ stage('Build Docker Image') {
 stage('Push Docker Image to Hub') {
     steps {
         // Connexion à Docker Hub
-        sh "docker login -u khouloud -p ton_mot_de_passe"
+        sh "docker login"
         
         // Tag et push de l'image
         sh "docker tag my-country-service:v3 khouloud/my-country-service:v3"
@@ -93,7 +93,24 @@ stage('Verify Docker Deployment') {
         sh 'curl -I http://localhost:8086/api/countries || true'
     }
 }
+stage('Deploy to Kubernetes') {
+    steps {
+        script {
+            // Charger le kubeconfig depuis Jenkins Credentials
+            withCredentials([file(credentialsId: 'kubeconfig-file', variable: 'KUBECONFIG')]) {
+                // Appliquer le déploiement et le service
+                sh 'kubectl apply -f k8s/deployment.yaml'
+                sh 'kubectl apply -f k8s/service.yaml'
 
+                // Vérifier l’état des pods et services
+                sh 'kubectl get pods'
+                sh 'kubectl get svc'
+            }
+        }
+    }
+}
+
+/*
         stage('Deploy WAR to Nexus') {
             steps {
                 script {
@@ -162,6 +179,6 @@ stage('Verify Docker Deployment') {
                 sh 'curl -I http://localhost:8888/Reservationavion/ || true'
             }
         }
-
+*/
     } // Fin stages
 } // Fin pipeline

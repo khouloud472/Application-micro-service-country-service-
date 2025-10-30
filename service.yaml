@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-country-service   # Nom du Service
+spec:
+  type: NodePort             # Type de service pour exposer le Pod à l'extérieur
+  selector:
+    app: country-service     # Sélecteur pour cibler les Pods
+  ports:
+    - port: 8082             # Port exposé à l'intérieur du cluster
+      targetPort: 8082       # Port sur lequel le Pod écoute
+      nodePort: 30007        # Port externe pour accéder au service depuis l'extérieur
+      protocol: TCP
