@@ -34,154 +34,28 @@ pipeline {
                 }
             }
         }
-/*
-        stage('SonarQube Analysis') {
-            steps {
-                withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
-                    sh """
-                        mvn sonar:sonar \
-                        -Dsonar.projectKey=country-service \
-                        -Dsonar.host.url=http://localhost:9000 \
-                        -Dsonar.login=${SONAR_TOKEN}
-                    """
-                }
-            }
-        }
 
- stage('Test Docker') {
-    steps {
-        sh 'docker version'
-        sh 'docker info'
-    }
-}*/
-
-
-stage('Build Docker Image') {
+        stage('Build Docker Image') {
             steps {
                 sh "docker build -t ${IMAGE_NAME}:v9 ."
             }
         }
 
-/*stage('Push Docker Image to Hub') {
-    steps {
-        // Connexion à Docker Hub
-        sh "docker login"
-        
-        // Tag et push de l'image
-        sh "docker tag my-country-service:v9 khouloudchrif/my-country-service:v9"
-        sh "docker push khouloudchrif/my-country-service:v9"
-    }
-}*/
-
-stage('Deploy to Kubernetes') {
-    steps {
-        script {
-            // Assurez-vous que Jenkins a accès au kubeconfig
-            sh 'kubectl config use-context minikube'
-            
-            // Appliquer les manifestes sans validation automatique (optionnel si erreur)
-            sh 'kubectl apply -f my-deployment.yaml --validate=false'
-            sh 'kubectl apply -f service.yaml --validate=false'
-        }
-    }
-}
-
-/*
-stage('Verify Docker Deployment') {
-    steps {
-        echo "Vérification du service Docker..."
-        sh 'sleep 10' // Attendre que le conteneur démarre
-        sh 'curl -I http://localhost:8086/countries || true'
-    }
-}*/
-
-stage('Deploy to Kubernetes') {
-    steps {
-        script {
-          
-                
-                // Vérifier le contexte Minikube
-                sh 'kubectl apply -f my-deployment.yaml'
-                sh 'kubectl apply -f service.yaml'
-
-                // Appliquer les manifestes
-                sh 'minikube service my-country-service'
-            
-            
-        }
-    }
-}
-
-
-/*
-        stage('Deploy WAR to Nexus') {
+        stage('Deploy to Kubernetes') {
             steps {
                 script {
-                    def isSnapshot = sh(
-                        script: 'mvn help:evaluate -Dexpression=project.version -q -DforceStdout', 
-                        returnStdout: true
-                    ).trim().endsWith('-SNAPSHOT')
+                    // Forcer le contexte Minikube
+                    sh 'kubectl config use-context minikube'
 
-                    if (isSnapshot) {
-                        sh '''
-                            mvn deploy:deploy-file \
-                            -Dfile=target/Reservationavion-0.0.1-SNAPSHOT.war \
-                            -DgroupId=com.khouloud \
-                            -DartifactId=Reservationavion \
-                            -Dversion=0.0.1-SNAPSHOT \
-                            -Dpackaging=war \
-                            -DrepositoryId=nexus-snapshots \
-                            -Durl=http://localhost:8081/repository/maven-snapshots/ \
-                            -Dusername=admin \
-                            -Dpassword=admin
-                        '''
-                    } else {
-                        sh '''
-                            mvn deploy:deploy-file \
-                            -Dfile=target/Reservationavion-0.0.1.war \
-                            -DgroupId=com.khouloud \
-                            -DartifactId=Reservationavion \
-                            -Dversion=0.0.1 \
-                            -Dpackaging=war \
-                            -DrepositoryId=nexus-releases \
-                            -Durl=http://localhost:8081/repository/maven-releases/ \
-                            -Dusername=admin \
-                            -Dpassword=admin
-                        '''
-                    }
+                    // Appliquer les manifestes
+                    sh 'kubectl apply -f my-deployment.yaml --validate=false'
+                    sh 'kubectl apply -f service.yaml --validate=false'
+
+                    // Vérifier que les pods sont en cours d'exécution
+                    sh 'kubectl get pods'
+                    sh 'kubectl get svc'
                 }
             }
         }
-
-        stage('Deploy WAR from Nexus to Tomcat') {
-            steps {
-                script {
-                    def TOMCAT_HOME = "/mnt/c/Users/khouloud/Downloads/apache-tomcat-11.0.13/apache-tomcat-11.0.13"
-                    def WAR_NAME = "Reservationavion.war"
-                    def NEXUS_URL = "http://admin:admin@localhost:8081/repository/maven-snapshots/com/khouloud/Reservationavion/0.0.1-SNAPSHOT/Reservationavion-0.0.1-20251027.044043-1.war"
-
-                    sh """
-                        echo "Téléchargement du WAR depuis Nexus..."
-                        curl -f -L -o "${TOMCAT_HOME}/webapps/${WAR_NAME}" "${NEXUS_URL}"
-                    """
-
-                    sh """
-                        echo "Redémarrage de Tomcat..."
-                        bash "${TOMCAT_HOME}/bin/shutdown.sh" || true
-                        sleep 5
-                        bash "${TOMCAT_HOME}/bin/startup.sh"
-                    """
-                }
-            }
-        }
-
-        stage('Verify Tomcat Deployment') {
-            steps {
-                echo "Vérification du déploiement Tomcat..."
-                sh 'sleep 10'
-                sh 'curl -I http://localhost:8888/Reservationavion/ || true'
-            }
-        }
-*/
     } // Fin stages
 } // Fin pipeline
