@@ -95,8 +95,8 @@ stage('Verify Docker Deployment') {
             // Avec un fichier de credential "kubeconfig-file" (type "File") dans Jenkins
             withCredentials([file(credentialsId: 'kubeconfig-file', variable: 'KUBECONFIG')]) {
                 // KUBECONFIG pointe automatiquement vers le fichier temporaire créé par Jenkins
-                sh 'kubectl apply -f k8s/deployment.yaml'
-                sh 'kubectl apply -f k8s/service.yaml'
+                sh 'kubectl apply -f my-deployment.yaml'
+                sh 'minikube service my-country-service'
             }
         }
     }
