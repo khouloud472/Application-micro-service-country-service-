@@ -107,7 +107,7 @@ stage('Deploy to Kubernetes') {
         }
     }
 }
-
+/*
 
         stage('Deploy WAR to Nexus') {
             steps {
@@ -177,7 +177,7 @@ stage('Deploy to Kubernetes') {
                 sh 'curl -I http://localhost:8888/Reservationavion/ || true'
             }
         }
-
+*/
     } 
 } 
 
