@@ -93,15 +93,9 @@ stage('Verify Docker Deployment') {
 stage('Deploy to Kubernetes') {
     steps {
         script {
-            // Charger le kubeconfig depuis Jenkins Credentials
-            withCredentials([file(credentialsId: 'kubeconfig-file')]) {
-                // Appliquer le déploiement et le service
-                sh 'kubectl apply -f deployment.yaml'
-                sh 'kubectl apply -f service.yaml'
-
-                // Vérifier l’état des pods et services
-                sh 'kubectl get pods'
-                sh 'kubectl get svc'
+            withCredentials([file(credentialsId: 'kubeconfig-file', variable: 'KUBECONFIG')]) {
+                sh 'kubectl apply -f k8s/deployment.yaml'
+                sh 'kubectl apply -f k8s/service.yaml'
             }
         }
     }
