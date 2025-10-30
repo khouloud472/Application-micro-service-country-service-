@@ -93,13 +93,16 @@ stage('Verify Docker Deployment') {
 stage('Deploy to Kubernetes') {
     steps {
         script {
-            withCredentials([file(credentialsId: 'kubeconfig-file', serverUrl: '')]) {
+            withCredentials([file(credentialsId: 'kubeconfig-file', variable: 'KUBECONFIG')]) {
                 sh 'kubectl apply -f k8s/deployment.yaml'
                 sh 'kubectl apply -f k8s/service.yaml'
+                sh 'kubectl get pods'
+                sh 'kubectl get svc'
             }
         }
     }
 }
+
 
 /*
         stage('Deploy WAR to Nexus') {
