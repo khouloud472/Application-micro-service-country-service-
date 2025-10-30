@@ -91,17 +91,23 @@ stage('Verify Docker Deployment') {
     }
 }*/
 stage('Deploy to Kubernetes') {
-    steps {
-        script {
-            withCredentials([file(credentialsId: 'kubeconfig-file', variable: 'KUBECONFIG')]) {
-                sh 'kubectl apply -f k8s/deployment.yaml'
-                sh 'kubectl apply -f k8s/service.yaml'
-                sh 'kubectl get pods'
-                sh 'kubectl get svc'
+            steps {
+                script {
+                    // Copier le kubeconfig dans un endroit accessible par Jenkins
+                    sh '''
+                        mkdir -p /tmp/kube
+                        cp /home/khouloud/.minikube/config /tmp/kube/config
+                        chmod 600 /tmp/kube/config
+                    '''
+                    // Appliquer les fichiers YAML
+                    sh 'KUBECONFIG=/tmp/kube/config kubectl apply -f k8s/deployment.yaml'
+                    sh 'KUBECONFIG=/tmp/kube/config kubectl apply -f k8s/service.yaml'
+                    // Vérification
+                    sh 'KUBECONFIG=/tmp/kube/config kubectl get pods'
+                    sh 'KUBECONFIG=/tmp/kube/config kubectl get svc'
+                }
             }
         }
-    }
-}
 
 
 /*
