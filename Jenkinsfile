@@ -62,7 +62,7 @@ stage('Build Docker Image') {
             }
         }
 
-stage('Push Docker Image to Hub') {
+/*stage('Push Docker Image to Hub') {
     steps {
         // Connexion à Docker Hub
         sh "docker login"
@@ -71,7 +71,7 @@ stage('Push Docker Image to Hub') {
         sh "docker tag my-country-service:v9 khouloudchrif/my-country-service:v9"
         sh "docker push khouloudchrif/my-country-service:v9"
     }
-}
+}*/
 
 stage('Deploy Micro-Service via Docker') {
     steps {
