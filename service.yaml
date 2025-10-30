@@ -1,4 +1,4 @@
-apiVersion: v1
+apiVersion: v9
 kind: Service
 metadata:
   name: my-country-service   # Nom du Service

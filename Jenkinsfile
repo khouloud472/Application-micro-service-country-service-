@@ -93,15 +93,12 @@ stage('Verify Docker Deployment') {
 stage('Deploy to Kubernetes') {
     steps {
         script {
-            // Charger le kubeconfig depuis Jenkins Credentials
-           withCredentials([string(credentialsId: 'kubernetes-pwd', variable: 'KUBECONFIG_CONTENT')]) {
+            withCredentials([string(credentialsId: 'kubeconfig-text', variable: 'KUBECONFIG_CONTENT')]) {
     writeFile file: 'kubeconfig_temp.yaml', text: env.KUBECONFIG_CONTENT
-     sh 'KUBECONFIG=kubeconfig_temp.yaml kubectl apply -f k8s/deployment.yaml'
+    sh 'KUBECONFIG=kubeconfig_temp.yaml kubectl apply -f k8s/deployment.yaml'
     sh 'KUBECONFIG=kubeconfig_temp.yaml kubectl apply -f k8s/service.yaml'
-                
-                sh 'kubectl get pods'
-                sh 'kubectl get svc'
-            }
+}
+
         }
     }
 }
