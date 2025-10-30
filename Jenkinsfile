@@ -89,13 +89,14 @@ stage('Verify Docker Deployment') {
         sh 'sleep 10' // Attendre que le conteneur démarre
         sh 'curl -I http://localhost:8086/countries || true'
     }
-}*/
-stage('Deploy to Kubernetes') {
+}*/stage('Deploy to Kubernetes') {
     steps {
         script {
-            withCredentials([file(credentialsId: 'kubeconfig-file', serverUrl: '')]) {
-                sh 'kubectl apply -f deployment.yaml'
-                sh 'kubectl apply -f service.yaml'
+            // Avec un fichier de credential "kubeconfig-file" (type "File") dans Jenkins
+            withCredentials([file(credentialsId: 'kubeconfig-file', variable: 'KUBECONFIG')]) {
+                // KUBECONFIG pointe automatiquement vers le fichier temporaire créé par Jenkins
+                sh 'kubectl apply -f k8s/deployment.yaml'
+                sh 'kubectl apply -f k8s/service.yaml'
             }
         }
     }
