@@ -94,7 +94,7 @@ stage('Deploy to Kubernetes') {
     steps {
         script {
             // Charger le kubeconfig depuis Jenkins Credentials
-            withCredentials([file(credentialsId: 'kubernetes-pwd')]) {
+            withCredentials([file(credentialsId: 'kubeconfig-file')]) {
                 // Appliquer le déploiement et le service
                 sh 'kubectl apply -f deployment.yaml'
                 sh 'kubectl apply -f service.yaml'
