@@ -44,13 +44,8 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 script {
-                    // Appliquer les manifestes
-                    sh 'kubectl apply -f my-deployment.yaml'
-                    sh 'kubectl apply -f service.yaml'
-
-                    // Vérifier que les pods sont en cours d'exécution
+                    
                     sh 'kubectl get pods'
-                    sh 'kubectl get svc'
                 }
             }
         }
