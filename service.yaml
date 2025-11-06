@@ -9,5 +9,5 @@ spec:
   ports:
     - port: 8082
       targetPort: 8082
-      nodePort: 30008   # <- changer ici
+      nodePort: 30010   # <- changer ici
       protocol: TCP

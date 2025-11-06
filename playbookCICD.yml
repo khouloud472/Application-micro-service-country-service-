@@ -28,12 +28,16 @@
         source: build
         state: present
 
-    - name: Push Docker image to Docker Hub
+    - name: Build and Push Docker image
       community.docker.docker_image:
+        build:
+          path: "{{ dockerfile_path }}"
         name: "{{ docker_registry_username }}/{{ image_name }}"
-        tag: "v10"
+        tag: "{{ image_tag }}"
         push: yes
-        source: local
+        source: build
+        state: present
+
 
     - name: Pull Docker image (verification)
       community.docker.docker_image:
