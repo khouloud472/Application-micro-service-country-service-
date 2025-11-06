@@ -38,7 +38,7 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh "docker build -t my-country-service:v10 ."
+                sh "docker build -t my-country-service:v11 ."
             }
         }
 
@@ -48,8 +48,8 @@ pipeline {
                 sh "docker login"
         
         // Tag et push de l'image
-                sh "docker tag my-country-service:v10 khouloudchrif/my-country-service:v10"
-                sh "docker push khouloudchrif/my-country-service:v10"
+                sh "docker tag my-country-service:v11 khouloudchrif/my-country-service:v11"
+                sh "docker push khouloudchrif/my-country-service:v11"
             }
         }
 
