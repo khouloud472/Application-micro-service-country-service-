@@ -35,6 +35,23 @@ pipeline {
             }
         }
 
+        stage('Build Docker Image') {
+            steps {
+                sh "docker build -t my-country-service:v10 ."
+            }
+        }
+
+stage('Push Docker Image to Hub') {
+    steps {
+        // Connexion à Docker Hub
+        sh "docker login"
+        
+        // Tag et push de l'image
+        sh "docker tag my-country-service:v10 khouloudchrif/my-country-service:v10"
+        sh "docker push khouloudchrif/my-country-service:v10"
+    }
+}
+
         stage('Deploy to Kubernetes') {
             steps {
                 script {
