@@ -54,7 +54,7 @@ pipeline {
         sh 'docker info'
     }
 }
-*/
+
 
 
 stage('Build Docker Image') {
@@ -72,7 +72,7 @@ stage('Push Docker Image to Hub') {
         sh "docker tag my-country-service:v10 khouloudchrif/my-country-service:v10"
         sh "docker push khouloudchrif/my-country-service:v10"
     }
-}
+}*/
 stage('Deploy to Kubernetes') {
     steps {
         script {
