@@ -59,7 +59,7 @@ pipeline {
 
 stage('Build Docker Image') {
             steps {
-                sh "docker build -t ${IMAGE_NAME}:v10 ."
+                sh "docker build -t khouloudchrif/my-country-service:v10 ."
             }
         }
 
