@@ -58,7 +58,7 @@ pipeline {
         stage('Deploy using Ansible playbook') {
             steps {
                 script {
-                    sh 'ansible-playbook -i hosts playbookCICD.yml --check'
+                    sh 'ansible-playbook -i hosts playbookCICD.yml'
                 }
             }
         }
