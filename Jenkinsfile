@@ -34,6 +34,49 @@ pipeline {
                 }
             }
         }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                script {
+                    withCredentials([file(credentialsId: 'kubeconfig-file', variable: 'KUBECONFIG')]) {
+                        sh 'kubectl get nodes'
+                        sh 'kubectl apply -f deployment.yaml'
+                        sh 'kubectl apply -f service.yaml'
+                    }
+                }
+            }
+        }
+
+        stage('Verify Docker Deployment') {
+            steps {
+                echo "Vérification du service Docker..."
+                sh 'sleep 10'
+                sh 'curl -I http://localhost:8086/countries || true'
+            }
+        }
+
+        stage('Deploy using Ansible playbook') {
+            steps {
+                script {
+                    sh 'ansible-playbook -i hosts playbookCICD.yml --check'
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            cleanWs()
+        }
+        success {
+            echo 'Ansible playbook executed successfully!'
+        }
+        failure {
+            echo 'Ansible playbook execution failed!'
+        }
+    }
+}
+
 /*
         stage('SonarQube Analysis') {
             steps {
@@ -73,56 +116,6 @@ stage('Push Docker Image to Hub') {
         sh "docker push khouloudchrif/my-country-service:v10"
     }
 }*/
-stage('Deploy to Kubernetes') {
-    steps {
-        script {
-            withCredentials([file(credentialsId: 'kubeconfig-file', variable: 'KUBECONFIG')]) {
-                sh 'kubectl get nodes'
-                sh 'kubectl apply -f deployment.yaml'
-                sh 'kubectl apply -f service.yaml'
-            }
-        }
-    }
-}
-
-
-
-
-        stage('Verify Docker Deployment') {
-            steps {
-                echo "Vérification du service Docker..."
-                sh 'sleep 10' // Attendre que le conteneur démarre
-                // Vérification simple du service
-                sh 'curl -I http://localhost:8086/countries || true'
-            }
-        }
-
-         stage('Deploy using Ansible playbook') {
-            steps {
-                script {
-                    // Exécute le playbook Ansible avec vérification
-                    sh 'ansible-playbook -i hosts playbookCICD.yml --check'
-                }
-            }
-        }
-    }
-
-    post {
-        always {
-            // Nettoyage de l’espace de travail
-            cleanWs()
-        }
-        success {
-            echo 'Ansible playbook executed successfully!'
-        }
-        failure {
-            echo 'Ansible playbook execution failed!'
-        }
-    }
-}
-
-    }
-}
 /*
 
         stage('Deploy WAR to Nexus') {
