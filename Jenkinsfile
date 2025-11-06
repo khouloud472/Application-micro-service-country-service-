@@ -73,39 +73,33 @@ stage('Push Docker Image to Hub') {
         sh "docker push khouloudchrif/my-country-service:v9"
     }
 }
-
 stage('Deploy to Kubernetes') {
-    steps {
-        script {
-            // Assurez-vous que Jenkins a accès au kubeconfig
-            sh 'kubectl config use-context minikube'
-            
-            // Appliquer les manifestes sans validation automatique (optionnel si erreur)
-            sh 'kubectl apply -f my-deployment.yaml --validate=false'
-            sh 'kubectl apply -f service.yaml --validate=false'
+            steps {
+                script {
+                    // Assurez-vous que Jenkins a accès au kubeconfig
+                    withCredentials([file(credentialsId: 'kubeconfig-file', variable: 'KUBECONFIG')]) {
+                        sh 'kubectl config use-context minikube'
+                        
+                        // Appliquer les manifestes Kubernetes
+                        sh 'kubectl apply -f my-deployment.yaml'
+                        sh 'kubectl apply -f service.yaml'
+                        
+                        // Afficher le service (optionnel)
+                        sh 'minikube service my-country-service --url'
+                    }
+                }
+            }
         }
-    }
-}
 
-
-stage('Verify Docker Deployment') {
-    steps {
-        echo "Vérification du service Docker..."
-        sh 'sleep 10' // Attendre que le conteneur démarre
-        sh 'curl -I http://localhost:8086/countries || true'
-    }
-}
-
-stage('Deploy to Kubernetes') {
-    steps {
-        script {
-          
-                sh 'kubectl apply -f my-deployment.yaml'
-                sh 'kubectl apply -f service.yaml'
-                sh 'minikube service my-country-service'
-            
-            
+        stage('Verify Docker Deployment') {
+            steps {
+                echo "Vérification du service Docker..."
+                sh 'sleep 10' // Attendre que le conteneur démarre
+                // Vérification simple du service
+                sh 'curl -I http://localhost:8086/countries || true'
+            }
         }
+
     }
 }
 /*
@@ -181,6 +175,7 @@ stage('Deploy to Kubernetes') {
 */
     } 
 } 
+
 
 
 
