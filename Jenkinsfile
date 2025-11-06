@@ -76,15 +76,14 @@ stage('Push Docker Image to Hub') {
 stage('Deploy to Kubernetes') {
     steps {
         script {
-            // Utilisation du kubeconfig stocké dans Jenkins Credentials
-            withCredentials([file(credentialsId: 'kubeconfig-file', serverUrl: '')]) {
-                // Appliquer les manifestes Kubernetes
+            withCredentials([file(credentialsId: 'kubeconfig-file', variable: 'KUBECONFIG')]) {
                 sh 'kubectl apply -f deployment.yaml'
                 sh 'kubectl apply -f service.yaml'
             }
         }
     }
 }
+
 
 
         stage('Verify Docker Deployment') {
