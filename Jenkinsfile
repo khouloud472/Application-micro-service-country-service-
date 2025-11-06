@@ -97,6 +97,30 @@ stage('Deploy to Kubernetes') {
             }
         }
 
+         stage('Deploy using Ansible playbook') {
+            steps {
+                script {
+                    // Exécute le playbook Ansible avec vérification
+                    sh 'ansible-playbook -i hosts playbookCICD.yml --check'
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            // Nettoyage de l’espace de travail
+            cleanWs()
+        }
+        success {
+            echo 'Ansible playbook executed successfully!'
+        }
+        failure {
+            echo 'Ansible playbook execution failed!'
+        }
+    }
+}
+
     }
 }
 /*

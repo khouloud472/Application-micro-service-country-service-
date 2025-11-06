@@ -1,0 +1,56 @@
+---
+- name: Build and Deploy Docker Image to Kubernetes
+  hosts: localhost
+  connection: local
+
+  vars:
+    image_name: my-country-service
+    image_tag: v1
+    dockerfile_path: './'
+    docker_registry_username: ""   # Saisir votre nom d'utilisateur Docker Hub
+    docker_registry_password: ""   # Saisir votre mot de passe Docker Hub
+    kube_namespace: jenkins
+    kubeconfig_path: "./config"    # Chemin vers votre kubeconfig
+
+  tasks:
+    - name: Log in to Docker Hub
+      community.general.docker_login:
+        username: "Khouloud Chrif"
+        password: "14282829@"
+        reauthorize: yes
+
+    - name: Build Docker image
+      community.docker.docker_image:
+        build:
+          path: "/mnt/c/Users/khouloud/Application-micro-service-country-service-/Dockerfile"
+        name: "khouloudchrif/my-country-service"
+        tag: "v10"
+        source: build
+        state: present
+
+    - name: Push the Docker image to Docker Hub
+      community.docker.docker_image:
+        name: "khouloudchrif/my-country-service"
+        tag: "v10"
+        push: yes
+        source: local
+
+    - name: Pull Docker image (optional, verification)
+      community.docker.docker_image:
+        name: "khouloudchrif/my-country-service"
+        tag: "v10"
+        source: pull
+
+- name: Apply Kubernetes Deployment
+  kubernetes.core.k8s:
+    state: present
+    namespace: "default"
+    src: "/mnt/c/Users/khouloud/Application-micro-service-country-service-/deployment.yaml"
+    kubeconfig: "/mnt/c/Users/khouloud/Application-micro-service-country-service-/config"
+
+- name: Apply Kubernetes Service
+  kubernetes.core.k8s:
+    state: present
+    namespace: "default"
+    src: "/mnt/c/Users/khouloud/Application-micro-service-country-service-/service.yaml"
+    kubeconfig: "/mnt/c/Users/khouloud/.kube/config/mnt/c/Users/khouloud/Application-micro-service-country-service-/config
