@@ -36,22 +36,26 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
-            steps {
-                sh "docker build -t my-country-service:v11 ."
-            }
+stage('Build Docker Image') {
+    steps {
+        // Connexion à Docker Hub avant le build
+        withCredentials([string(credentialsId: 'dockerhub-pwd', variable: 'DOCKERHUB_PASSWORD')]) {
+            sh "echo $DOCKERHUB_PASSWORD | docker login -u $DOCKERHUB_USER --password-stdin"
         }
 
-        stage('Push Docker Image to Hub') {
-            steps {
-        // Connexion à Docker Hub
-                sh "docker login"
-        
-        // Tag et push de l'image
-                sh "docker tag my-country-service:v11 khouloudchrif/my-country-service:v11"
-                sh "docker push khouloudchrif/my-country-service:v11"
-            }
-        }
+        // Construire l'image Docker
+        sh "docker build -t my-country-service:v11 ."
+    }
+}
+
+stage('Push Docker Image to Hub') {
+    steps {
+        // Tag et push
+        sh "docker tag my-country-service:v11 $DOCKERHUB_USER/my-country-service:v11"
+        sh "docker push $DOCKERHUB_USER/my-country-service:v11"
+    }
+}
+
 
 
 stage('Deploy to Kubernetes') {
