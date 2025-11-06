@@ -8,11 +8,8 @@ pipeline {
 
     environment {
         IMAGE_NAME = "my-country-service"
-        IMAGE_TAG = "v10"
         DOCKERHUB_USER = "khouloudchrif"
-        DOCKERHUB_CREDENTIALS = "dockerhub-pwd"        // ID des credentials Docker Hub dans Jenkins
-        KUBECONFIG = "/home/khouloud/.kube/config"     // kubeconfig de Kind
-        KUBE_NAMESPACE = "jenkins"
+        DOCKERHUB_CREDENTIALS = "dockerhub-pwd"
     }
 
     stages {
@@ -38,54 +35,50 @@ pipeline {
             }
         }
 
-        stage('Docker Build & Push') {
+        stage('Build Docker Image') {
             steps {
-                script {
-                    // Connexion à Docker Hub
-                    withCredentials([usernamePassword(credentialsId: "${DOCKERHUB_CREDENTIALS}", usernameVariable: 'USER', passwordVariable: 'PWD')]) {
-                        sh "echo $PWD | docker login -u $USER --password-stdin"
-                    }
-
-                    // Build de l'image Docker
-                    sh "docker build -t ${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG} ."
-
-                    // Push sur Docker Hub
-                    sh "docker push ${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG}"
-
-                    // Vérification
-                    sh "docker pull ${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG}"
-                }
+                sh "docker build -t my-country-service:v10 ."
             }
         }
 
-        stage('Prepare Kubernetes Namespace') {
-            steps {
-                // S'assurer que le namespace existe
-                sh "kubectl --kubeconfig=${KUBECONFIG} create namespace ${KUBE_NAMESPACE} --dry-run=client -o yaml | kubectl --kubeconfig=${KUBECONFIG} apply -f -"
-            }
-        }
+stage('Push Docker Image to Hub') {
+    steps {
+        // Connexion à Docker Hub
+        sh "docker login"
+        
+        // Tag et push de l'image
+        sh "docker tag my-country-service:v10 khouloudchrif/my-country-service:v10"
+        sh "docker push khouloudchrif/my-country-service:v10"
+    }
+}
 
-        stage('Deploy to Kubernetes') {
-            steps {
-                // Appliquer les manifests
-                sh "kubectl --kubeconfig=${KUBECONFIG} apply -n ${KUBE_NAMESPACE} -f deployment.yaml"
-                sh "kubectl --kubeconfig=${KUBECONFIG} apply -n ${KUBE_NAMESPACE} -f service.yaml"
-            }
-        }
+        environment {
+    KUBECONFIG = "/home/khouloud/.kube/config"
+}
 
-        stage('Verify Deployment') {
+stage('Deploy to Kubernetes') {
+    steps {
+        sh 'kubectl config use-context kind-mycluster'
+        sh 'kubectl apply -f deployment.yaml'
+        sh 'kubectl apply -f service.yaml'
+    }
+}
+
+
+        stage('Verify Docker Deployment') {
             steps {
-                echo "Vérification du service Docker/Kubernetes..."
-                sh "kubectl --kubeconfig=${KUBECONFIG} get pods -n ${KUBE_NAMESPACE}"
+                echo "Vérification du service Docker..."
                 sh 'sleep 10'
                 sh 'curl -I http://localhost:8086/countries || true'
+                sh 'curl -I http://localhost:8086/swagger-ui/index.html'
             }
         }
 
-        stage('Optional: Deploy using Ansible') {
+        stage('Deploy using Ansible playbook') {
             steps {
-                // Déployer via Ansible si besoin
-                sh "ansible-playbook -i hosts playbookCICD.yml --extra-vars 'kube_namespace=${KUBE_NAMESPACE} kubeconfig_path=${KUBECONFIG}'"
+                script {
+                    sh 'ansible-playbook -i hosts playbookCICD.yml'
+                }
             }
         }
     }
@@ -95,14 +88,13 @@ pipeline {
             cleanWs()
         }
         success {
-            echo 'Pipeline terminé avec succès !'
+            echo 'Ansible playbook executed successfully!'
         }
         failure {
-            echo 'Pipeline échoué. Vérifiez les logs.'
+            echo 'Ansible playbook execution failed!'
         }
     }
 }
-
 
 /*
         stage('SonarQube Analysis') {
