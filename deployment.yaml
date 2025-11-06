@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-country-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: country-service
+  template:
+    metadata:
+      labels:
+        app: country-service
+    spec:
+      containers:
+        - name: country-service
+          image: khouloudchrif/my-country-service:v10
+          ports:
+            - containerPort: 8082
