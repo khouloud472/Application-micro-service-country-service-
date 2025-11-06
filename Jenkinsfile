@@ -77,12 +77,14 @@ stage('Deploy to Kubernetes') {
     steps {
         script {
             withCredentials([file(credentialsId: 'kubeconfig-file', variable: 'KUBECONFIG')]) {
+                sh 'kubectl get nodes'
                 sh 'kubectl apply -f deployment.yaml'
                 sh 'kubectl apply -f service.yaml'
             }
         }
     }
 }
+
 
 
 
